@@ -1,12 +1,12 @@
 <?xml version="1.0" ?>
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <general>
-    <simulationTime value="100000"/>
+    <simulationTime value="10001"/>
     <outputToFile value="true">report</outputToFile>
   </general>
   <noc>
     <nocFile>config/network.xml</nocFile>
-    <flitsPerPacket value="10"/>
+    <flitsPerPacket value="32"/>
     <Vdd value="5"/>
   </noc>
   <application>
@@ -14,22 +14,22 @@
     <synthetic>
       <phase name="warmup">
         <distribution value="uniform"/>
-        <start max="100" min="100"/>
-        <duration max="1090" min="1090"/>
-        <repeat max="-1" min="-1"/>
-        <delay max="0" min="0"/>
-        <injectionRate value="0.002"/>
-        <count max="1" min="1"/>
+        <start min="0" max="0"/>
+        <duration min="1" max="1"/>
+        <repeat min="-1" max="-1"/>
+        <delay min="0" max="0"/>
+        <injectionRate value="0.001"/>
+        <count min="1" max="1"/>
         <hotspot value="0"/>
       </phase>
       <phase name="run">
         <distribution value="uniform"/>
-        <start max="1100" min="1100"/>
-        <duration max="101100" min="101100"/>
-        <repeat max="-1" min="-1"/>
-        <delay max="0" min="0"/>
-        <injectionRate value="0.002"/>
-        <count max="1" min="1"/>
+        <start min="1" max="1"/>
+        <duration min="10001" max="10001"/>
+        <repeat min="-1" max="-1"/>
+        <delay min="0" max="0"/>
+        <injectionRate value="0.0031"/>
+        <count min="1" max="1"/>
         <hotspot value="0"/>
       </phase>
     </synthetic>
@@ -44,22 +44,24 @@
     <processingElements>
       <function_calls value="false"/>
       <send_flit value="false"/>
-      <send_head_flit value="true"/>
+      <send_head_flit value="false"/>
       <receive_flit value="false"/>
-      <receive_tail_flit value="true"/>
+      <receive_tail_flit value="false"/>
       <throttle value="false"/>
       <reset value="false"/>
     </processingElements>
     <router>
       <function_calls value="false"/>
       <send_flit value="false"/>
-      <send_head_flit value="true"/>
+      <send_head_flit value="false"/>
       <receive_flit value="false"/>
-      <receive_tail_flit value="true"/>
+      <receive_tail_flit value="false"/>
       <throttle value="false"/>
       <reset value="false"/>
       <assign_channel value="false"/>
       <buffer_overflow value="true"/>
+      <routingTable_mode value="true"/>
+      <routingTable_path value="/home/mmirka/my_ratatoskr/bin/urand/RT.txt"/>
     </router>
     <netrace>
       <inject value="true"/>
@@ -75,6 +77,6 @@
     </tasks>
   </verbose>
   <report>
-    <bufferReportRouters>1 2 3 4</bufferReportRouters>
+    <bufferReportRouters>012345678</bufferReportRouters>
   </report>
 </configuration>

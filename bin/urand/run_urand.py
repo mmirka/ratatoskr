@@ -33,16 +33,18 @@ from combine_hists import combine_VC_hists, combine_Buff_hists,\
 init_data_structure
 import sys
 sys.path.insert(0, '..')
-from configure import Configuration
+from configure_AdjMat import Configuration
 ###############################################################################
 
 
 def main():
     """ Run the script """
-    os.system('cp ../config.xml config/config.xml')
-    os.system('cp ../network.xml config/network.xml')
-    os.system('cp ../../simulator/sim .')
-    config = Configuration('../config.ini')
+    #os.system('cp ../config.xml config/config.xml')
+    #os.system('cp ../network.xml config/network.xml')
+    os.system('cp Direction_Mat.txt ../.')
+    os.system('cp ../sim .')
+    #os.system('cp ../config.ini .')
+    config = Configuration('config.ini')
     results = begin_all_sims(config)
     save_results(results, 'rawResults.pkl')
 ###############################################################################
@@ -208,7 +210,10 @@ def begin_all_sims(config):
     str(config.runRateStep))
 
     # Initialze the latencies.
-    injectionRates = np.arange(config.runRateMin, config.runRateMax, config.runRateStep)
+    if config.runRateMin == config.runRateMax:
+        injectionRates = [config.runRateMin]
+    else:
+        injectionRates = np.arange(config.runRateMin, config.runRateMax, config.runRateStep)
     injectionRates = [round(elem, 4) for elem in injectionRates]
     latenciesFlit = -np.ones((len(injectionRates), config.restarts))
     latenciesPacket = -np.ones((len(injectionRates), config.restarts))
