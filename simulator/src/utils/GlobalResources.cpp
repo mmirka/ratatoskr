@@ -210,6 +210,10 @@ void GlobalResources::readConfigFile(const std::string& configPath)
         RoutingTable_file = readRequiredStringAttribute(RTFile_node, "value");
         createRoutingTable();
     }
+    
+    // DIRECTION MATRIX
+    pugi::xml_node DMFile_node = Routing_node.child("directionMatrix_path");
+    DirectionMat_file = readRequiredStringAttribute(DMFile_node, "value");
 
     //NOC
     pugi::xml_node noc_node = doc.child("configuration").child("noc");
@@ -277,7 +281,12 @@ void GlobalResources::readNoCLayout(const std::string& nocPath)
     readNodeTypes(noc_node);
     readNodes(noc_node);
     readConnections(noc_node);
-    fillDirInfoOfNodeConn();
+    if (!RoutingTable_mode){
+        fillDirInfoOfNodeConn();
+    }
+    else{
+        fillDirInfoOfNodeConn_DM();
+    }
 }
 
 void GlobalResources::readNodeTypes(const pugi::xml_node& noc_node)
@@ -325,7 +334,7 @@ void GlobalResources::sortNodesPositions()
     sort(zPositions.begin(), zPositions.end());
     zPositions.erase(unique(zPositions.begin(), zPositions.end()), zPositions.end());
 }
-/*
+
 void GlobalResources::fillDirInfoOfNodeConn()
 {
     for (Node& node : nodes) {
@@ -364,18 +373,16 @@ void GlobalResources::fillDirInfoOfNodeConn()
         }
     }
 }
-*/
+
 
 // My fillDirInfoOfNodeConn() function. Rely on Direction_Mat.txt file
 
-void GlobalResources::fillDirInfoOfNodeConn()
+void GlobalResources::fillDirInfoOfNodeConn_DM()
 {
     std::cout << "Start filling direction of nodes \n";
 
-    std::string filename;
-    filename = "/home/mmirka/ratatoskr/tests/routing-table/Direction_Mat.txt";
     std::vector<std::vector<int>> directions_mat ;
-    std::ifstream infile(filename);
+    std::ifstream infile(DirectionMat_file);
     std::string line;
 
     int cpt_line = 0;

@@ -56,6 +56,7 @@ public:
     std::string RoutingTable_file;
     bool RoutingTable_mode;
     std::vector <std::vector<int> > RoutingTable;
+    std::string DirectionMat_file;
     //Application
     std::string benchmark;
     std::string data_file;
@@ -117,6 +118,8 @@ private:
     void sortNodesPositions();
 
     void fillDirInfoOfNodeConn();
+    
+    void fillDirInfoOfNodeConn_DM();
 
     void readConnections(const pugi::xml_node& noc_node);
 
