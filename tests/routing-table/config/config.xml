@@ -61,7 +61,8 @@
       <assign_channel value="false"/>
       <buffer_overflow value="true"/>
       <routingTable_mode value="true"/>
-      <routingTable_path value="/home/mmirka/my_ratatoskr/bin/RT.txt"/>
+      <routingTable_path value="RT.txt"/>
+      <directionMatrix_path value="Direction_Mat.txt"/>
     </router>
     <netrace>
       <inject value="true"/>
@@ -77,6 +78,6 @@
     </tasks>
   </verbose>
   <report>
-    <bufferReportRouters>0123</bufferReportRouters>
+    <bufferReportRouters>0 1 2 3</bufferReportRouters>
   </report>
 </configuration>
