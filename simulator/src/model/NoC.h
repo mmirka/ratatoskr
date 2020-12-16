@@ -36,7 +36,7 @@
 #include <boost/property_tree/json_parser.hpp>
 //#include <boost/archive/binary_oarchive.hpp>
 //#include <boost/serialization/serialization.hpp>
-#include <zmq.hpp>
+#include </auto/mmirka/cppzmq/zmq.hpp>
 
 #include "traffic/Flit.h"
 #include "utils/Structures.h"
