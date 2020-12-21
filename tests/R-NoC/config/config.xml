@@ -61,7 +61,7 @@
       <assign_channel value="false"/>
       <buffer_overflow value="true"/>
       <routingTable_mode value="true"/>
-      <routingTable_path value="/home/mmirka/my_ratatoskr/bin/urand/RT.txt"/>
+      <routingTable_path value="/home/mmirka/ratatoskr/tests/R-NoC/RT.txt"/>
     </router>
     <netrace>
       <inject value="true"/>

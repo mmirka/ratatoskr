@@ -514,301 +514,68 @@ def get_GrapheAndConnections(noc_file):
 
 ######### Routing Table compouting ##########
 
-def build_mainDFS(graph, start, visited=None, tree=None, dist=None):
-    if visited is None:
-        visited = set()
-        visited.add(start)
-    if tree is None:
-        tree = {}
-        s_node = Node(start)
-        tree[start] = s_node
-    if dist is None:
-        dist = 0
 
-    tree[start].dist_from_root = dist
+def RoutingTable():
 
-    for next in graph[start]:#-visited:
-        if next in visited:
+    nbLanes = 2
+    nbPorts = 5
+    NoC_x = 2
+    NoC_y = 2
+    nbRouters_NoC = NoC_x * NoC_y # mesh
+    nbRouters_Roundabout = (nbLanes + 1) * nbPorts + 1
+    nbRouters_R_NoC = nbRouters_NoC * nbRouters_Roundabout
+    in_local = 2    
+    
+    ### 1. Macro routing table: XY routing
+    XY_NoC_RT = -np.ones((nbRouters_NoC,nbRouters_NoC))
+    
+    for src in range(nbRouters_NoC):
+        for dst in range(nbRouters_NoC):
+            if src == dst:
+                pass
+            else:
+                src_x = src%NoC_x
+                src_y = src//NoC_y
+                dst_x = dst%NoC_x
+                dst_y = dst//NoC_y
+                
+                if dst_x > src_x:
+                    next = src+1
+                elif dst_x < src_x:
+                    next = src-1
+                elif dst_y > src_y:
+                    next = src+NoC_x
+                else:
+                    next = src-NoC_x
+                
+                XY_NoC_RT[src,dst] = next
+    print(XY_NoC_RT)    
+    
+    ### 2. Micro routing table: roundabout
+    roundabout_RT = -np.ones((nbRouters_Roundabout,1,nbLanes))
+    
+    for src in range(nbRouters_Roundabout):
+        dst = 0
+        if src == dst:
             pass
         else:
-            #print("###############")
-            #print(visited)
-            #print("tree :")
-            #for keys,values in tree.items():
-            #    print(keys, " : ", values.DFSlinks)
-            tree[start].add_DFSlink(next)     
-            tree[next] = Node(next)
-            visited.add(next)
-            build_mainDFS(graph, next, visited, tree, dist+1)
-
-    return visited, tree
-
-
-def complete_dfs(tree, graph):
-    for keys,values in tree.items():
-        for node in graph[keys]:
-            if node in values.DFSlinks:
+            next = -np.ones(nbLanes)
+            r_lane = (src-1)//nbPorts
+            r_port = (src-1)%nbPorts
+            if src == 12:
+                next[0] = 0
+                roundabout_RT[src,dst] = next
+            elif src > 6:
                 pass
             else:
-                tree[keys].add_Remaininglinks(node)
-    return tree
-
-"""
-def label_dfs(tree, start, label=None):
-    if label is None:
-        label = len(tree)-1
-    
-    num_branch = len(tree[start].DFSlinks)
-    if num_branch == 0:
-        tree[start].label = label
-        return tree, label-1
-
-    else:
-        for next in tree[start].DFSlinks:
-            tree, label = label_dfs(tree, next, label)
-        tree[start].label = label
-        return tree, label-1
-"""
-    
-def ChannelList(tree):
-    visited = []
-    channels = []
- 
-    for key,value in tree.items():
-        for link in value.DFSlinks:
-            pair1 = [key, link]
-            pair2 = [link, key]
-            if pair1 in visited:
-                pass
-            elif pair2 in visited:
-                pass
-            else:
-               visited.append(pair1)
-               visited.append(pair2)
-               if tree[key].dist_from_root < tree[link].dist_from_root:
-                   channel = Channel(key, link)
-                   channels.append(channel)
-               elif tree[key].dist_from_root > tree[link].dist_from_root:
-                   channel = Channel(link, key)
-                   channels.append(channel)
-               else:
-                   if tree[key].label < tree[link].label:
-                       channel = Channel(key, link)
-                       channels.append(channel)
-                   else:
-                       channel = Channel(link, key)
-                       channels.append(channel)
-
-        for link in value.Remaininglinks:
-            pair1 = [key, link]
-            pair2 = [link, key]
-            if pair1 in visited:
-                pass
-            elif pair2 in visited:
-                pass
-            else:
-               visited.append(pair1)
-               visited.append(pair2)
-               if tree[key].dist_from_root < tree[link].dist_from_root:
-                   channel = Channel(key, link)
-                   channels.append(channel)
-               elif tree[key].dist_from_root > tree[link].dist_from_root:
-                   channel = Channel(link, key)
-                   channels.append(channel)
-               else:
-                   if tree[key].label < tree[link].label:
-                       channel = Channel(key, link)
-                       channels.append(channel)
-                   else:
-                       channel = Channel(link, key)
-                       channels.append(channel)
-    #for c in channels:
-        #print("Channel edges: ", c.edges, ", Up edge: ", c.UpEdge)
-    
-    return channels
-
-
-def label_dfs(tree, start, main_branch, label=None):
-    if label is None:
-        label = 0
-    num_branch = len(tree[start].DFSlinks)
-
-    if main_branch:
-        if num_branch == 0:
-            tree[start].label = label
-            return tree, label+1
-
-        elif num_branch == 1:
-            tree[start].label = label
-            next = tree[start].DFSlinks[0]
-            tree, label = label_dfs(tree, next, True, label+1)
-            return tree, label+1
-
-        else:
-            for i in range(num_branch):
-                next = tree[start].DFSlinks[i]
-                if i == 0:
-                    pass
-                else:
-                    tree, label = label_dfs(tree, next, False, label)
-            next = tree[start].DFSlinks[0]
-            tree[start].label = label
-            tree, label = label_dfs(tree, next, True, label+1)
-            return tree, label+1   
-
-    else:
-        if num_branch == 0:
-            tree[start].label = label
-            return tree, label+1
+                next[0] = src + nbPorts*nbLanes + 1
+                next[1] = src + 1    
+                roundabout_RT[src,dst] = next
         
-        elif num_branch == 1:
-            next = tree[start].DFSlinks[0]
-            tree, label = label_dfs(tree, next, False, label)
-            tree[start].label = label
-            return tree, label+1    
-
-        else:
-            for i in range(num_branch):
-                next = tree[start].DFSlinks[i]
-                if i == 0:
-                    tree, label = label_dfs(tree, next, False, label)
-                else:
-                    tree, label = label_dfs(tree, next, False, label)
-            tree[start].label = label
-            return tree, label+1 
-
-def UDPaths(dest, src, tree, channels, graph, dic, state=None, paths=None, current_path=None):
-    if state is None:
-        state = 'Up'
-    if paths is None:
-        paths = []
-    if current_path is None:
-        current_path = []
-
-    current_path.append(src)
-    #print(current_path)  
-    #If current node (src) is the destination, then sqve the path and print it 
-    if src == dest:
-    #    print("Path saved before: ", paths)
-        paths.append(deepcopy(current_path)) 
-    #    print("Path saved new: ", paths)
-    else:
-        #If current node is not the destination
-        # --> explore all the adjacent node
-        for next_src in graph[src]:
-            # If next node is already in the current path, then pass --> cycle 
-            if next_src in current_path :
-                pass
-            else:
-                #Get channel
-                for ch in channels:
-                    #print("ch.edges = ", ch.edges, " src = ", src, "next_src = ", next_src)
-                    #print("ch.edges = ", ch.edges, " dic[src] = ", dic[src], "dic[next_src] = ", dic[next_src])
-                    if (dic[src] in ch.edges) and (dic[next_src] in ch.edges):
-                        break
-                #Get direction
-                if dic[src] == ch.UpEdge: 
-                    next_state = 'Down'
-                else: 
-                    next_state = 'Up'    
-
-                if state == 'Up': 
-                    paths = UDPaths(dest, next_src, tree, channels, graph, dic, next_state, paths, current_path)
-                elif state == 'Down':
-                    if next_state == 'Down':
-                        paths = UDPaths(dest, next_src, tree, channels, graph, dic, next_state, paths, current_path)
-                    else:
-                        pass
-                else:
-                    pass
-    #print("Path saved before pop: ", paths)
-    current_path.pop() #delete last element for recursivity   
-    #print("Path saved returned: ", paths)     
-    return paths
-
-
-def ComputePath(dest, src, tree, channels, graph, dic):
-    #print("src = ", src, "dest = ", dest)
-    if dest == src:
-        path = -1
-    elif dest in graph[src]:
-        path = dest
-    else :#dest < src:
-        # 0. get equivalent node
-        n_dest_key = dic[dest] 
-        n_src_key = dic[src]
-        # 1. compute all paths (follow graph until dest without circles)
-        all_paths = UDPaths(dest, src, tree, channels, graph, dic) #recursive function follozing UD rule
-
-        # 2. remove all impossible UD paths (i.e. Ly>Lx<Lz)
-        selected_paths = []
-        for path in all_paths:
-            keep = 1
-            for i in range(len(path)):
-                if (i == 0) or (i == len(path)-1):
-                    pass
-                else:
-                    if (path[i-1] > path[i]) and (path[i] < path[i+1]):
-                        keep = 0
-            if keep == 1:
-                selected_paths.append(path)
-     
-        # 3. select the shorter one
-        min_path = selected_paths[0]
-        min_length = len(min_path)
-        for path_i in selected_paths:
-            l_path = len(path_i)
-            if l_path<min_length:
-                min_path = path_i
-                min_length = l_path
-
-        #print("src = ", src, " dest = ", dest, "path = ", min_path)
-        path = min_path[1] #first node of the path different from the start 
-    return path
-
-def RoutingTable(tree, channels):
-#1. Rebuild the graph with label
-    dic={}
-    graph = {}
-
-    for key,value in tree.items():
-        dic[key] = value.label
-     
-    #print("Dic = ", dic)
-
-    dic_reverse={}
-    for key,value in dic.items():
-        dic_reverse[value] = key
-     
-    #print("Dic Reverse = ",dic_reverse)
-
-    for key,value in tree.items():
-        g_key = dic[key]
-        links = []
-        for l in value.DFSlinks:
-            links.append(dic[l])
-        for l in value.Remaininglinks:
-            links.append(dic[l])
-
-        graph[g_key] = links
-
-    #print("Graphe : ",graph)
-
-#2. Create the routing table
-    s = len(tree)
-    RT = np.empty((s,s), dtype=int)
-    for dest in range(s):
-        for src in range(s):
-            p = ComputePath(dest, src, tree, channels, graph, dic_reverse)
-            #print("p = ", p)
-            RT[dest, src] = int(p)
-    #print("RT = \n", RT)
-
-#3. Create text file from routing table
-    np.savetxt('RT_DFSlabels.txt', RT, fmt='%d', delimiter = ' ')
-   
-#def create_graph()
-    return RT, dic, dic_reverse
+        
+    print(roundabout_RT)
+        
+    return RT
 
 ###############################################################################
 
@@ -818,13 +585,6 @@ def main():
     noc_file = './config/network.xml'
     my_graphe, routers = get_GrapheAndConnections(noc_file)
 
-    #print("Final Graphe = ", my_graphe)
-    # Print routers
-    #for i in range(len(routers)):
-    #    print("Router ", routers[i].ID, " : Connections = ", routers[i].connections)
-    
-
-    #print("Final routers = ", routers)
     nbRout = len(routers)
     Conn_Mat = -1*np.ones((nbRout, nbRout))
 
@@ -836,42 +596,13 @@ def main():
     """
     Main Execution Point
     """
-    vis, tree = build_mainDFS(my_graphe, 0)
-    #vis, tree = build_mainDFS(graphNum, 1)
-    tree = complete_dfs(tree, my_graphe)
-    tree, final_label = label_dfs(tree, 0, True)
     
-    #print("###  DFS Results  ###")
-    #print(vis)
-    #print("tree :")
-    #for keys,values in tree.items():
-    #    print(keys, " : ", values.DFSlinks, " : ", values.Remaininglinks, " label : ", values.label, " dist : ", values.dist_from_root)
-    #print(len(tree))
-
-    channels = ChannelList(tree)
-    RT, dic, dic_reverse = RoutingTable(tree, channels)
-    #print("RT = \n", RT)
-    #print("Dic = ", dic)
-    #print("Dic Reverse = ",dic_reverse)
-
-    RT_final = np.empty(RT.shape, dtype=int) 
-    l_RT = len(RT)
-    #print("l_RT = ", l_RT)
-    for i in range(l_RT):
-        for j in range(l_RT):
-            m = dic_reverse[i]
-            n = dic_reverse[j]
-            val = RT[i,j]
-            if val != -1:
-                val = dic_reverse[val]
-            RT_final[m,n] = val
-        
-    #print("Final RT = \n", RT_final)
-
+    RT = RoutingTable()
+"""   
     RT_Dir = np.empty(RT.shape, dtype=str)
     for i in range(l_RT):
         for j in range(l_RT):
-            val = RT_final[i,j]
+            val = RT[i,j]
             #d_val = ''
             if val != -1:
                 for k in range(l_RT):
@@ -897,7 +628,7 @@ def main():
     #Create text file from routing table
     np.savetxt('RT.txt', RT_DirNum, fmt='%d', delimiter = ' ') 
 ###############################################################################
-
+"""
 
 if __name__ == "__main__":
     main()

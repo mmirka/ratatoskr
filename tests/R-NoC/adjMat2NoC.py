@@ -6,82 +6,20 @@ from random import randint
 import math
 import pickle
 import copy
-#for i in range(8,-1,-1):
-#    print(i)
-np.random.seed(10)
-adj_1 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
- [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
- [0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
- [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
- [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
- [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,]]
-
-adj_2 = [[0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
- [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,]]
-
-adj_3 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,],
- [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
- [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,]]
-
+from Create_AdjacencyMatrix import AdjMat_Creator
 
 class Node(object):
     def __init__(self, ID):
         self.id = ID
         self.links = []
+        
 
 class Archi:
 
     def load_matrix(self, adj_mat):
         self.adj_mat = adj_mat
+        self.nbRouters = len(self.adj_mat)
+     
 
     def get_graph(self):
         # Step 1: create graph:
@@ -92,7 +30,7 @@ class Archi:
                 ls = []
                 ID = i
                 for j in range(len(self.adj_mat)):
-                    if self.adj_mat[ID][j] == 1:
+                    if self.adj_mat[ID][j] > 0:
                         ls.append(j)
                 self.graph[ID] = ls
 
@@ -109,55 +47,12 @@ class Archi:
                 else:
                     self.links_to_place.append(link_2)
            
-    def build_mainDFS(self, start=None, visited=None, tree=None, dist=None):
-        if start is None:
-            start = list(self.graph.keys())[0]
-        if visited is None:
-            visited = set()
-            visited.add(start)
-        if tree is None:
-            tree = {}
-            s_node = Node(start)
-            tree[start] = s_node
-        if dist is None:
-            dist = 0
-
-        tree[start].dist_from_root = dist
-
-        for next in self.graph[start]:#-visited:
-            if next in visited:
-                pass
-            else:
-                #print("###############")
-                #print(visited)
-                #print("tree :")
-                #for keys,values in tree.items():
-                #    print(keys, " : ", values.links)
-                tree[start].links.append(next)     
-                tree[next] = Node(next)
-                visited.add(next)
-                self.build_mainDFS(next, visited, tree, dist+1)
-
-        self.tree = tree
-
-    def build_PrevTree(self):
-        self.prev_tree = {}
-        for keys,values in self.tree.items():
-            for val in values.links:
-                self.prev_tree[val] = keys
-
-        #print("Prev Tree: ", self.prev_tree)
 
     def __init__(self, mat):
         self.adj_mat = None
         self.load_matrix(mat)
         self.get_graph()
 
-        self.build_mainDFS()
-        #print("tree :")
-        #for keys,values in self.tree.items():
-        #    print(keys, " : ", values.links)
-        self.build_PrevTree()
         self.get_links_to_place()
         #print("links_to_place : ",self.links_to_place)
         self.num_nodes = len(self.graph) 
@@ -168,7 +63,14 @@ class Archi:
 
         self.links=[]
 
-
+        self.nbLanes = 2
+        self.nbPorts = 5
+        self.NoC_x = 2
+        self.NoC_y = 2
+        self.nbRouters_NoC = self.NoC_x * self.NoC_y # mesh
+        self.nbRouters_Roundabout = (self.nbLanes + 1) * self.nbPorts + 1
+        self.nbRouters_R_NoC = self.nbRouters_NoC * self.nbRouters_Roundabout
+        self.in_local = 2
     
 
 
@@ -326,6 +228,67 @@ class Archi:
         return True
 
     def place_nodes(self):
+        width_roundabout = 0.6
+        step_lane = (width_roundabout/2)/(self.nbLanes+1)
+        print("step_lane = ",step_lane)
+        angles_start = np.zeros(self.nbLanes+1)
+        angle_step = (2*math.pi)/self.nbPorts
+        
+        #for k, value in self.graph.items():
+        for k in range(self.nbRouters_R_NoC):
+            R_id = k
+            if R_id%self.nbRouters_Roundabout == 0:
+                RNoC_id = R_id//self.nbRouters_Roundabout
+                x = RNoC_id%self.NoC_x
+                y = RNoC_id//self.NoC_y
+                self.positions[R_id] = [x,y]
+                print(R_id, " ", RNoC_id)
+                print(x," ",y)
+                
+            else:
+                RNoC_id = R_id//self.nbRouters_Roundabout
+                offset_x = self.positions[RNoC_id*self.nbRouters_Roundabout][0]
+                offset_y = self.positions[RNoC_id*self.nbRouters_Roundabout][1]
+                center_x = offset_x
+                center_y = offset_y+width_roundabout/2  # 0.3/2 + 0.05
+                
+                inR_id = R_id%self.nbRouters_Roundabout
+                id_lane = (inR_id-1)//self.nbPorts
+                id_port = (inR_id-1)%self.nbPorts
+                print(R_id, " ", inR_id, " ", id_lane)
+                radius = step_lane+id_lane*step_lane
+                print("radius = ", radius)
+                if id_lane%2 == 0:
+                    if id_lane == self.nbLanes:
+                        angle_start=angles_start[id_lane-1]
+                        angles_start[id_lane] = angle_start
+                    else:
+                        angle_start = math.pi + angle_step/2
+                        angles_start[id_lane] = angle_start
+                else:
+                    angle_start = math.pi 
+                    angles_start[id_lane] = angle_start
+                    
+                angle_steps = angle_step*id_port                
+                relative_x = math.cos(angle_start+angle_steps) * radius  
+                relative_y = math.sin(angle_start+angle_steps) * radius 
+                
+                x = relative_x + center_x
+                y = relative_y + center_y
+                
+                self.positions[R_id] = [x,y]
+                print(x," ",y)    
+                 
+        for n0, value in self.graph.items():
+            for n1 in self.graph[n0]:
+                if [n1, n0] in self.links:
+                    pass
+                else:
+                    self.links.append([n0, n1])  
+                    
+                    
+
+    def old_place_nodes(self):
         N = self.num_nodes
         c = int(math.sqrt(N))
         r = N-c**2
@@ -352,153 +315,14 @@ class Archi:
                     pass
                 else:
                     self.links.append([n0, n1])
- 
-
-    def place_nodes_recursif (self, link_length_max, start=None, tree_Lvisited=None): # no crossing, superposition, etc.
-        if tree_Lvisited is None:
-            tree_Lvisited = copy.deepcopy(self.tree)
-            for keys, values in tree_Lvisited.items():
-                tree_Lvisited[keys] = []
-                #print("graph_Lvisited[",keys, "] = ", graph_Lvisited[keys])
-        
-
-        if start is None:
-            start = list(self.tree.keys())[0]
-            self.placed.append(start) 
-            self.positions[start] = [0, 0]
-        #print("length placed: ",len(self.placed))
-        #print("length graph: ",len(self.graph))
-        #print("\nstart: ", start)
-        #print("positions: ", self.positions)
-        #print("links: ", self.links)
-        #print("links to place: ", self.links_to_place)
-        #print("placed: ", self.placed)
-        #print(graph_Lvisited)
-        # Base case to stop
-        if (len(self.placed) == len(self.graph)) and self.check_allLinks():
-            #print("###### Finished ######")
-            return 1
-        else:                        
-            ## connect all possible
-            for node in self.graph[start]:
-                #print("node test: ", node)
-                #print(self.positions)
-                if node in self.placed: # check if the already placed node is linkable
-                    ret = self.check_position(start, node)
-                    #print(ret)
-                    if ret == 0:
-                        pass
-                    elif ret == 1:
-                        self.links.append([start, node])
-                        if (len(self.placed) == len(self.graph)) and self.check_allLinks():
-                            #print("###### Finished ######")
-                            return 1
-                    else:
-                        #print("## no solution ##")
-                        return -1
-                else:
-                    pass
-            next_to_place = []
-            # If no next available, go back:
-            for next in self.tree[start].links:
-                #if next in tree_Lvisited[start]:
-                if next in self.placed:
-                    pass
-                else:
-                    next_to_place.append(next)
-            #print("still to place: ", next_to_place)
-            if not next_to_place:
-                #print("no placement")
-                # go back in DFS tree
-                previous = self.prev_tree[start]
-                tree_Lvisited[start].append(previous)
-                #print("next back: ",previous)
-                r = self.place_nodes(link_length_max, previous, tree_Lvisited)
-                if r == 1:
-                    return 1
-                else:
-                    return -1 
-
-            else:
-                
-                for next in next_to_place:
-                    #print("next: ", next)
-                    tree_Lvisited[start].append(next)
-                    #stop = -1
-                    #while stop == -1:
-                    pos_start = self.positions.get(start)
-                    x_start = pos_start[0]
-                    y_start = pos_start[1]
-                    for x in range(0,link_length_max+1,1): #[-link_length, 0, link_length]:
-                        for sign_x in [-1, 1]:
-                            for y in range(0,link_length_max+1,1):
-                                for sign_y in [-1, 1]:
-                                    xf = x*sign_x
-                                    yf = y*sign_y
-                                    #print(xf,", ", yf)
-                                    if xf == yf:
-                                        pass
-                                    elif (xf != 0) and (yf != 0):
-                                        pass
-                                    else:
-                                        p = [xf+x_start,yf+y_start]
-                                        ret = self.check_onLink(p)
-                                        #print("ret = ",ret)
-                                        if ret == 1:
-                                            pass
-                                        elif self.in_positions(p) == 1:
-                                            pass
-                                        else:
-                                            #print("next ", next ,"p = ", p)
-                                            self.positions[next] = p
-                                            self.placed.append(next)
-                                            #self.links.append([start, next])###
-                                            #print(self.positions[next])
-    
-                                        
-    
-                                            ## memorize state
-                                            #print("next: ",next)
-                                            r = self.place_nodes(link_length_max, next, tree_Lvisited)
-                                            if r == 1:
-                                                return 1
-                                                #return 0
-                                            else:
-                                                ## delete last modif
-                                                del self.positions[next]
-                                                self.placed.remove(next)
-                                                links2del = []
-                                                for link in self.links:
-                                                    if next in link:
-                                                        links2del.append(link)
-                                                for link in links2del:
-                                                    self.links.remove(link)
-                                                tree_Lvisited[next] = []
-                                
-                    return -1
-
-
-                         
-                                ## No solutions
-                                # try with longer links
-                                #link_length += 1
-                                #if link_length > 5:
-                                #    return False
-                    #previous = self.prev_tree[start]
-                    #tree_Lvisited[start].append(previous)
-                    #r = self.place_nodes(previous, tree_Lvisited)
-                    #if r == 1:
-                    #    return 1
-                    #    #return 0
-                    #else:
                     
                  
 
     def plot(self):
         fig = plt.figure()
-        
-        x = np.zeros(len(self.graph))
-        y = np.zeros(len(self.graph))
+        print(len(self.positions)) 
+        x = np.zeros(self.nbRouters_R_NoC)
+        y = np.zeros(self.nbRouters_R_NoC)
         i = 0
         self.key2id = {}
         self.id2key = {}
@@ -512,22 +336,31 @@ class Archi:
        # print(self.id2key)
        # print(x) 
        # print(y)
-        plt.scatter(x, y, s=500, c='b')
+        for i in range(len(x)):
+            if i%self.nbRouters_Roundabout == 0:
+                plt.scatter(x[i], y[i], s=50, c='g')
+            else:
+                plt.scatter(x[i], y[i], s=40, c='b')
+            
         i = 0
-        for xi,yi in zip(x,y):
-          #  print(self.id2key[i])
-            label = "{:.0f}".format(self.id2key[i])
-            plt.annotate(label, (xi, yi), textcoords='offset points',xytext=(-15,-15), ha='center')
-            i += 1
+        
         for l in self.links:
             l1 = l[0]
             l2 = l[1]
             x_l = [self.positions[l1][0], self.positions[l2][0]]
             y_l = [self.positions[l1][1], self.positions[l2][1]]
-            plt.plot(x_l, y_l)
+            
+            plt.arrow(x_l[0], y_l[0], (x_l[1]-x_l[0]), (y_l[1]-y_l[0]), fc='k', ec='k',head_width=0.02, head_length=0.05,linewidth=1, length_includes_head=True)
+            
+            
+        for xi,yi in zip(x,y):
+          #  print(self.id2key[i])
+            label = "{:.0f}".format(self.id2key[i])
+            plt.annotate(label, (xi, yi), textcoords='offset points',xytext=(-5,-10), ha='center', c = 'r')
+            i += 1
 
         plt.axis('equal')
-        plt.grid()
+        #plt.grid()
         plt.show()
 
         
@@ -558,7 +391,7 @@ def NoC_plot(data):
        # print(self.id2key)
        # print(x) 
        # print(y)
-        plt.scatter(x, y, s=500, c='b')
+        plt.scatter(x, y, s=10, c='b')
         i = 0
         for xi,yi in zip(x,y):
           #  print(self.id2key[i])
@@ -578,79 +411,42 @@ def NoC_plot(data):
 
 def main():
 
-    
-    link_length_max = 1
-    #adj = adj_1
-    #NoC = Archi(adj)
-    #print("Archi: ",Archi)
-    #print("   adj_mat: ",NoC.adj_mat)
-    #print("   graph: ",NoC.graph)
-    #print("   positions: ",NoC.positions)
-    #print("   placed: ",NoC.placed)
-    #print("   links: ",NoC.links)
-    #print("   links to place: ",NoC.links_to_place)
+    AM_creator = AdjMat_Creator()
+    RNoC_mat = AM_creator.R_NoC_AM()
 
+    adj = RNoC_mat
+    print(adj)
+    NoC = Archi(adj)
+    print("Archi: ",Archi)
+    print("   adj_mat: ",NoC.adj_mat)
+    print("   graph: ",NoC.graph)
+    print("   positions: ",NoC.positions)
+    print("   placed: ",NoC.placed)
+    print("   links: ",NoC.links)
+    print("   links to place: ",NoC.links_to_place)
+    ret = NoC.place_nodes() 
 
-    #print("### Start recurrence ###")
+    print("positions: ",NoC.positions)
+    print("placed: ",NoC.placed)
+    print("links: ",NoC.links)
+    print("links to place: ",NoC.links_to_place)
+    print("graph: ",NoC.graph)
+    NoC.plot()
+          
+    ### For netWork Writer: Memorize Positions and Links
+    filename = 'Mat2NoC_test'
+    data = Data()
+    data.positions = NoC.positions
+    data.links = NoC.links
+       
+    with open(filename, 'wb') as f:
+        pickle.dump(data, f)  
 
-    #ret = NoC.place_nodes()
-    #print("positions: ",NoC.positions)
-    #print("placed: ",NoC.placed)
-    #print("links: ",NoC.links)
-    #print("links to place: ",NoC.links_to_place)
-    #print("graph: ",NoC.graph)
-    #print("ret = ", ret)
-
-    #NoC.plot()
-   
-    filename = 'Dataset_1M_adjMat_r9_i1'
     with open(filename, 'rb') as f:
         load_data = pickle.load(f)
-    
-    for i in range(1):
-        ret = 0
-        link_length_max = 1
-        while ret != 1:
-            adj = load_data[13,:,:]
-            print(adj)
-            NoC = Archi(adj)
-            print("Archi: ",Archi)
-            print("   adj_mat: ",NoC.adj_mat)
-            print("   graph: ",NoC.graph)
-            print("   positions: ",NoC.positions)
-            print("   placed: ",NoC.placed)
-            print("   links: ",NoC.links)
-            print("   links to place: ",NoC.links_to_place)
-            ret = NoC.place_nodes() 
-            print("ret = ", ret)
-            if ret == 1:
-                print("positions: ",NoC.positions)
-                print("placed: ",NoC.placed)
-                print("links: ",NoC.links)
-                print("links to place: ",NoC.links_to_place)
-                print("graph: ",NoC.graph)
-                NoC.plot()
-
-            else:
-                print("######### Increase  link_length_max ###########")
-                #global link_length_max
-                link_length_max += 1
-                print("######### link_length_max = ", link_length_max)
             
-        ### For netWork Writer: Memorize Positions and Links
-        filename = 'Mat2NoC_test2'
-        data = Data()
-        data.positions = NoC.positions
-        data.links = NoC.links
-         
-        with open(filename, 'wb') as f:
-            pickle.dump(data, f)  
+    NoC_plot(load_data)
 
-        with open(filename, 'rb') as f:
-            load_data = pickle.load(f)
-            
-        NoC_plot(load_data)
- 
     print("####### MIRACLE #########")
 
 if __name__ == "__main__":

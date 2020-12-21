@@ -22,7 +22,7 @@
 ###############################################################################
 import configparser
 import xml_writers_adjMat as writers
-import plot_network
+#import plot_network
 import os
 import multiprocessing
 import pickle
@@ -98,7 +98,7 @@ class Configuration:
         self.topologyFile = config['Hardware']['topologyFile']
         self.flitSize = int(config['Hardware']['flitSize'])
         self.portNum = int(config['Hardware']['portNum'])
-        self.nbRouters = self.x[0] * self.y[0]
+        #self.nbRouters = self.x[0] * self.y[0]
 ###############################################################################
 class Data(object):
     def __init__(self):
