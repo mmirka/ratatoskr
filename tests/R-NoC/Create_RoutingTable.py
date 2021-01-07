@@ -33,7 +33,19 @@ from copy import deepcopy
 import math
 from math import pi
 ###############################################################################
-# Global variables
+### Global variables
+
+# roundabout info
+nbLanes = 2
+nbPorts = 5
+NoC_x = 2
+NoC_y = 2
+nbRouters_NoC = NoC_x * NoC_y # mesh
+nbRouters_Roundabout = (nbLanes + 1) * nbPorts + 1
+nbRouters_R_NoC = nbRouters_NoC * nbRouters_Roundabout
+in_local = 2
+
+
 """
 graph = {'A': set(['B', 'C', 'D', 'E']),
          'B': set(['A', 'C', 'E', 'F']),
@@ -44,7 +56,7 @@ graph = {'A': set(['B', 'C', 'D', 'E']),
          'G': set(['C', 'D', 'F', 'I']),
          'H': set(['D', 'E', 'F', 'I']),
          'I': set(['D', 'E', 'G', 'H'])}
-"""
+
 
 ## From Sancho's paper
 Graph = {'A': ['E', 'C', 'B', 'D'],
@@ -68,7 +80,7 @@ graphNum = {0: [4, 2, 1, 3],
          7: [8, 4, 5, 3],
          8: [6, 3, 4, 7]}
 
-"""
+
 graph = {'A': set(['B', 'C', 'D', 'E']),
          'B': set(['A', 'C', 'F']),
          'C': set(['A', 'B', 'F', 'G']),
@@ -78,8 +90,7 @@ graph = {'A': set(['B', 'C', 'D', 'E']),
          'G': set(['C', 'F']),
          'H': set(['D', 'E', 'I']),
          'I': set(['D', 'E', 'H'])}
-"""
-"""
+
 ## Mesh 3x3
 graph = {0: [1, 3],
            1: [2, 4, 0],
@@ -90,8 +101,7 @@ graph = {0: [1, 3],
            6: [3, 7],
            7: [8, 4, 6],
            8: [7, 5]}
-"""
-"""
+
 ## Irregular Mesh3x3
 graph = {0: set([1, 3]),
            1: set([2, 4, 0]),
@@ -150,7 +160,8 @@ class Router(object):
 
 ######### Get graphe and connections from network.xml file #############
 
-DIR = {'L': 0, 'E': 1, 'W': 2, 'N': 3, 'S': 4, 'U': 5, 'D': 6}
+DIR_classic = {'L': 0, 'E': 1, 'W': 2, 'N': 3, 'S': 4, 'U': 5, 'D': 6}
+DIR = {'Out': 0, 'Switch': 1, 'Keep': 2, 'In1': 3, 'In2': 4, 'In3': 5, 'In4': 6}
 
 def get_GrapheAndConnections_old(noc_file):
     try:
@@ -284,159 +295,65 @@ def Compute_directions(routers):
         angles = []
         connIDs = []
         nbConn = len(r0.connections)
+        r0_ID = r0.ID
+        r0_roundabout_ID = r0_ID % nbRouters_Roundabout # id of r0 into its roundabout
+        r0_roundabout_ID_min = r0_ID - r0_roundabout_ID # id min into the roundabout
+        r0_roundabout_ID_max = r0_ID + (nbRouters_Roundabout-r0_roundabout_ID-1)
+        if r0_roundabout_ID == 0:
+            r0_lane = nbLanes + 1
+        else:
+            r0_lane = (r0_roundabout_ID-1) // nbPorts
+        print(r0_ID, r0_roundabout_ID, r0_roundabout_ID_min, r0_roundabout_ID_max)
+        print("lane = ", r0_lane)
 
-        # 1. Get all connections
-        for ID in r0.connections:
-            # identify the connected router
-            for r in routers:
-                if r.ID == ID:
-                    r1 = r
-            # compute angle
-            angle = computeAngle(r0, r1)
-            angles.append(angle)
-            connIDs.append(r1.ID)
-       # print("Routeur ", r0.ID, ", connected to: ", connIDs, ", at angles: ", angles)
-        # 2. Order the angles
-        angles_ordered = []
-        connIDs_ordered = []
-        for i in range(nbConn):
-            # a. append min angle
-            min_a = min(angles)
-            angles_ordered.append(min_a)
-            
-            # b. append corresponding ID
-            for j in range(nbConn-i):
-                if angles[j] == min_a:
-                    idx = j
-                    break
-            min_id = connIDs[idx]
-            connIDs_ordered.append(min_id)
-       
-            # c. remove placed items
-            angles.remove(min_a)
-            connIDs.remove(min_id)
-
-        # 3. Assign directions
-        for j in range(len(routers)):
-            if routers[j].ID == r0.ID:
-                idx_r0 = j
-                break
-
-        if nbConn == 0: # no connection, impossible, but considered anyway
-            pass
-        elif nbConn == 4: # all connnections possible --> assign directions clockwise
-            for i in range(nbConn):
-                if i == 0:
-                    direction = 'N'
-                elif i == 1:
-                    direction = 'E'
-                elif i == 2:
-                    direction = 'S'
-                else:
-                    direction = 'W'
-   
-                routers[idx_r0].connections[connIDs_ordered[i]] = direction
-                        
-
-        elif nbConn == 3: # one empty link --> assign clother direction to smallest angle, then clockwise 
-            min_a = angles_ordered[0]
-            dN = min_a
-            dE = abs(min_a - pi/2)
-            dS = abs(min_a - pi)
-            dW = abs(min_a - 3*pi/2)
-
-            dmin = min([dN, dE, dS, dW])
-            if dN == dmin:
-                direction = 'N'        
-            elif dE == dmin:
-                direction = 'E'
-            elif dS == dmin:
-                direction = 'S'
+        for key, val in r0.connections.items():
+            r1_ID = key
+            r1_roundabout_ID = r1_ID % nbRouters_Roundabout # id of r0 into its roundabout
+            r1_roundabout_ID_min = r1_ID - r1_roundabout_ID # id min into the roundabout
+            r1_roundabout_ID_max = r1_ID + (nbRouters_Roundabout-r1_roundabout_ID-1)
+            if r1_roundabout_ID == 0:
+                r1_lane = nbLanes + 1
             else:
-                direction = 'W'
-            
-            direction_prev = direction
-
-            routers[idx_r0].connections[connIDs_ordered[0]] = direction
-
-            
-            for i in range(1,3): 
-                if direction_prev == 'N':
-                    direction = 'E'
-                elif direction_prev == 'E':
-                    direction = 'S'
-                elif direction_prev == 'S':
-                    direction = 'W'
-                else :
-                    direction = 'N'
-              
-                direction_prev = direction
-                routers[idx_r0].connections[connIDs_ordered[i]] = direction
-
-        else: # 1 or 2 connection --> assign the clothest direction or 2nd best if both share the same best
-            n = 0
-            e = 0
-            s = 0
-            w = 0
-            for i in range(nbConn): 
-                min_a = angles_ordered[i]
-                dN = min_a
-                dE = abs(min_a - pi/2)
-                dS = abs(min_a - pi)
-                dW = abs(min_a - 3*pi/2)
-               # print(dW==dS)
-                dmin = min([dN, dE, dS, dW])
-                if dN == dmin:
-                    if n == 0:
-                        direction = 'N'
-                        n = 1
+                r1_lane = (r1_roundabout_ID-1) // nbPorts
+            print('___ ', r1_ID, r1_roundabout_ID, r1_roundabout_ID_min, r1_roundabout_ID_max)
+            print("___ lane = ", r0_lane)
+           
+            # check if it is an internal router (from same roundabout)
+            fromSameRbt = False
+            if (r1_roundabout_ID_min == r0_roundabout_ID_min) and (r1_roundabout_ID_max == r0_roundabout_ID_max): # only one comparison is enough but can highlights error...
+                fromSameRbt = True
+            #if r0_    
+            if fromSameRbt:
+                if r1_ID == r0_ID - 1: #receive next
+                    direction = 'In1'
+                elif r1_ID == r0_ID + 1: #send next
+                    if r1_lane == nbLanes:
+                        direction = 'Out'
                     else:
-                        dmin = min([dE, dS, dW])
-                        if dE == dmin:
-                            direction = 'E'
-                        elif dS == dmin:
-                            direction = 'S'
+                        direction = 'Keep'
+                elif r1_ID > r0_ID: # change lane --> switch or out  
+                    if r1_lane == nbLanes:
+                        if r0_roundabout_ID == 0:
+                            direction = 'In1'
                         else:
-                            direction = 'W'
-                elif dE == dmin:
-                    if e == 0:
-                        direction = 'E'
-                        e = 1
+                            direction = 'Out'
                     else:
-                        dmin = min([dN, dS, dW])
-                        if dN == dmin:
-                            direction = 'N'
-                        elif dS == dmin:
-                            direction = 'S'
-                        else:
-                            direction = 'W'
-                elif dS == dmin:
-                    if s == 0:
-                        direction = 'S'
-                        s = 1
-                    else:
-                        dmin = min([dE, dN, dW])
-                        if dE == dmin:
-                            direction = 'E'
-                        elif dN == dmin:
-                            direction = 'N'
-                        else:
-                            direction = 'W'
+                        direction = 'Switch'
+                else: # receive from a switching or outing
+                    if r1_roundabout_ID == 0:
+                        direction = 'Out'
+                    elif r1_lane == r0_lane-1: #previous lane --> higher priority
+                        direction = 'In1'
+                    else: # for now only 2 input max ################################## !!!!!! IMPORTANT !!!!!! #############################
+                        direction = 'In2'
+            else:
+                if r0_lane < r1_lane: # receive from other roundabout
+                    direction = 'In2'
                 else:
-                    if w == 0:
-                        direction = 'W'
-                        w = 1
-                    else:
-                        dmin = min([dE, dS, dN])
-                        if dE == dmin:
-                            direction = 'E'
-                        elif dS == dmin:
-                            direction = 'S'
-                        else:
-                            direction = 'N'
-
-                routers[idx_r0].connections[connIDs_ordered[i]] = direction
-
+                    direction = 'Out' # send to other roundabout
+            
+            routers[r0_ID].connections[r1_ID] = direction     
+            
     return routers
 
 def get_GrapheAndConnections(noc_file):
@@ -504,11 +421,13 @@ def get_GrapheAndConnections(noc_file):
                 routers[connection[1]].connections[connection[0]] = ''
                 routers[connection[0]].connections[connection[1]] = ''        
 
-                #for i in range(len(routers)):
-                #    print("Routeur ", routers[i].ID, ", connected to: ", routers[i].connections)
+        for i in range(len(routers)):
+            print("Routeur ", routers[i].ID, ", connected to: ", routers[i].connections)
 
     #Update directions
     routers = Compute_directions(routers)
+    for i in range(len(routers)):
+        print("Routeur ", routers[i].ID, ", connected to: ", routers[i].connections)
 
     return my_graphe, routers
 
@@ -517,14 +436,7 @@ def get_GrapheAndConnections(noc_file):
 
 def RoutingTable():
 
-    nbLanes = 2
-    nbPorts = 5
-    NoC_x = 2
-    NoC_y = 2
-    nbRouters_NoC = NoC_x * NoC_y # mesh
-    nbRouters_Roundabout = (nbLanes + 1) * nbPorts + 1
-    nbRouters_R_NoC = nbRouters_NoC * nbRouters_Roundabout
-    in_local = 2    
+    # r-noc info in global variables    
     
     ### 1. Macro routing table: XY routing
     XY_NoC_RT = -np.ones((nbRouters_NoC,nbRouters_NoC))
@@ -581,10 +493,9 @@ def RoutingTable():
 
 
 def main():
-        
     noc_file = './config/network.xml'
     my_graphe, routers = get_GrapheAndConnections(noc_file)
-
+"""
     nbRout = len(routers)
     Conn_Mat = -1*np.ones((nbRout, nbRout))
 
@@ -593,11 +504,12 @@ def main():
             Conn_Mat[i, key] = DIR[val]
  
     np.savetxt('Direction_Mat.txt', Conn_Mat, fmt='%d', delimiter = ' ')
-    """
-    Main Execution Point
-    """
+ 
+#    Main Execution Point
     
     RT = RoutingTable()
+"""
+
 """   
     RT_Dir = np.empty(RT.shape, dtype=str)
     for i in range(l_RT):

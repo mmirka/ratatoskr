@@ -1,0 +1,4 @@
+1. Run adjmat2noc.py --> create NoC data for R-NoC (see main function)
+2. Run configure_AdjMat.py --> create the config files (config.xml and network.xml), according to config.ini and NoCs_data/Mat2NoC
+3. Run Create_RoutingTable --> create RT.txt and Direction_Mat.txt for the routing table mode
+4. Run ./sim
