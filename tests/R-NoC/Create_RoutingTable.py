@@ -161,7 +161,8 @@ class Router(object):
 ######### Get graphe and connections from network.xml file #############
 
 DIR_classic = {'L': 0, 'E': 1, 'W': 2, 'N': 3, 'S': 4, 'U': 5, 'D': 6}
-DIR = {'Out': 0, 'Switch': 1, 'Keep': 2, 'In1': 3, 'In2': 4, 'In3': 5, 'In4': 6}
+DIR = {'Local':0, 'Out': 1, 'Switch': 2, 'Keep': 3, 'In1': 4, 'In2': 5, 'In3': 6}
+#DIR = {'Out': 0, 'Switch': 1, 'Keep': 2, 'In1': 3, 'In2': 4, 'In3': 5}
 
 def get_GrapheAndConnections_old(noc_file):
     try:
@@ -465,7 +466,7 @@ def RoutingTable(dir_mat):
                 
                 XY_NoC_RT[src,dst] = next
     print(XY_NoC_RT)    
-    
+ 
     ### 2. Micro routing table: roundabout
     roundabout_RT = -np.ones((nbRouters_Roundabout,nbPorts,3)) #--> nymber of destinations = number of output ports
     print(roundabout_RT.shape)
@@ -476,15 +477,15 @@ def RoutingTable(dir_mat):
             for j in range(len(dir_mat)):
                 d = int(dir_mat[src, j])
                 if d != -1:
-                    if d < 3:
+                    if d < 4: # no input
                         print('router ',j,' direction ',d)
                         if d == DIR['Out'] :
                             if j == dest:
-                                roundabout_RT[src,i,d] = j
+                                roundabout_RT[src,i,(d-1)] = j
                             else:
                                 pass
                         else:
-                            roundabout_RT[src,i,d] = j
+                            roundabout_RT[src,i,(d-1)] = j
                             
     ### 2.b) delete deadlock path
     for src in range(nbRouters_Roundabout):
@@ -506,9 +507,9 @@ def RoutingTable(dir_mat):
                         roundabout_RT[src,i,1] = -1 # no other option
                         roundabout_RT[src,i,2] = -1 # no other option
                     
-                    
-    ### Warning: destinations = last layer routers, the local router (id=0) is not considered
-    
+    #############################################################################################                
+    ### Warning: destinations = last layer routers, the local router (id=0) is not considered ###
+    #############################################################################################
                                 
     print(roundabout_RT)
         
@@ -595,7 +596,7 @@ def main():
         for key, val in routers[i].connections.items():
             Conn_Mat[i, key] = DIR[val]
  
-    np.savetxt('Direction_Mat.txt', Conn_Mat, fmt='%d', delimiter = ' ')
+    
  
 #    Main Execution Point
     
@@ -616,8 +617,19 @@ def main():
                 else:
                     d = val
                 RT_Dir[i,j,k] = d
+    # Add the routing for local output
+    for i in range(nbRouters_NoC):
+        j = i*nbRouters_Roundabout
+        RT_Dir[j,i,:] = [0,-1,-1]
 
+    
     print("RT directions = \n", RT_Dir)
+    
+    # complete and save directions mat
+    for i in range(nbRouters_NoC):
+        j = i*nbRouters_Roundabout
+        Conn_Mat[j,j] = DIR['Local']
+    np.savetxt('Direction_Mat.txt', Conn_Mat, fmt='%d', delimiter = ' ')
     """
     RT_DirNum = np.empty(RT.shape, dtype=int)
     for i in range(l_RT):
