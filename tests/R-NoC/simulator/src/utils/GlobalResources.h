@@ -55,7 +55,9 @@ public:
     std::string bufferDepthType;
     std::string RoutingTable_file;
     bool RoutingTable_mode;
+    bool R_NoC_mode;
     std::vector <std::vector<int> > RoutingTable;
+    std::vector <std::vector <std::vector<int> > > RoutingTable_RNoC;
     std::string DirectionMat_file;
     //Application
     std::string benchmark;

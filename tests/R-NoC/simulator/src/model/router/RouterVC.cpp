@@ -227,7 +227,12 @@ std::map<int, std::vector<Channel>> RouterVC::VCAllocation_generateRequests()
             if (flit && (flit->type==HEAD || flit->type==SINGLE) && !routingTable.count({in_conPos, in_vc})) {
                 int src_node_id = this->id;
                 int dst_node_id = flit->packet->dst.id;
-                int chosen_conPos = routingAlg->route(src_node_id, dst_node_id);
+                if (R_NoC_mode){
+                    int chosen_conPos = routingAlg->route(src_node_id, dst_node_id, creditCounter);
+                }
+                else{
+                    int chosen_conPos = routingAlg->route(src_node_id, dst_node_id);
+                }
                 globalReport.increaseRouting(this->id);
                 if (chosen_conPos==-1){
                     std::cerr << "Bad routing in router "<< id << " from "<<src_node_id << " to " << dst_node_id
