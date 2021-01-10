@@ -300,7 +300,7 @@ def Compute_directions(routers):
         r0_roundabout_ID_min = r0_ID - r0_roundabout_ID # id min into the roundabout
         r0_roundabout_ID_max = r0_ID + (nbRouters_Roundabout-r0_roundabout_ID-1)
         if r0_roundabout_ID == 0:
-            r0_lane = nbLanes + 1
+            r0_lane = nbLanes #+ 1
         else:
             r0_lane = (r0_roundabout_ID-1) // nbPorts
         print(r0_ID, r0_roundabout_ID, r0_roundabout_ID_min, r0_roundabout_ID_max)
@@ -312,7 +312,7 @@ def Compute_directions(routers):
             r1_roundabout_ID_min = r1_ID - r1_roundabout_ID # id min into the roundabout
             r1_roundabout_ID_max = r1_ID + (nbRouters_Roundabout-r1_roundabout_ID-1)
             if r1_roundabout_ID == 0:
-                r1_lane = nbLanes + 1
+                r1_lane = nbLanes #+ 1
             else:
                 r1_lane = (r1_roundabout_ID-1) // nbPorts
             print('___ ', r1_ID, r1_roundabout_ID, r1_roundabout_ID_min, r1_roundabout_ID_max)
@@ -324,14 +324,14 @@ def Compute_directions(routers):
                 fromSameRbt = True
             #if r0_    
             if fromSameRbt:
-                if r1_ID == r0_ID - 1: #receive next
+                if r1_roundabout_ID == r0_roundabout_ID - 1: #receive next
                     direction = 'In1'
-                elif r1_ID == r0_ID + 1: #send next
+                elif r1_roundabout_ID == r0_roundabout_ID + 1: #send next
                     if r1_lane == nbLanes:
                         direction = 'Out'
                     else:
                         direction = 'Keep'
-                elif r1_ID > r0_ID: # change lane --> switch or out  
+                elif r1_roundabout_ID > r0_roundabout_ID: # change lane --> switch or out  
                     if r1_lane == nbLanes:
                         if r0_roundabout_ID == 0:
                             direction = 'In1'
@@ -341,7 +341,10 @@ def Compute_directions(routers):
                         direction = 'Switch'
                 else: # receive from a switching or outing
                     if r1_roundabout_ID == 0:
-                        direction = 'Out'
+                        if r1_lane == r0_lane:
+                            direction = 'Out'
+                        else:
+                            direction = 'In2'
                     elif r1_lane == r0_lane-1: #previous lane --> higher priority
                         direction = 'In1'
                     else: # for now only 2 input max ################################## !!!!!! IMPORTANT !!!!!! #############################
@@ -434,7 +437,7 @@ def get_GrapheAndConnections(noc_file):
 ######### Routing Table compouting ##########
 
 
-def RoutingTable():
+def RoutingTable(dir_mat):
 
     # r-noc info in global variables    
     
@@ -464,30 +467,119 @@ def RoutingTable():
     print(XY_NoC_RT)    
     
     ### 2. Micro routing table: roundabout
-    roundabout_RT = -np.ones((nbRouters_Roundabout,1,nbLanes))
-    
+    roundabout_RT = -np.ones((nbRouters_Roundabout,nbPorts,3)) #--> nymber of destinations = number of output ports
+    print(roundabout_RT.shape)
+    ### 2.a) complete all directions
     for src in range(nbRouters_Roundabout):
-        dst = 0
-        if src == dst:
-            pass
-        else:
-            next = -np.ones(nbLanes)
-            r_lane = (src-1)//nbPorts
-            r_port = (src-1)%nbPorts
-            if src == 12:
-                next[0] = 0
-                roundabout_RT[src,dst] = next
-            elif src > 6:
-                pass
-            else:
-                next[0] = src + nbPorts*nbLanes + 1
-                next[1] = src + 1    
-                roundabout_RT[src,dst] = next
-        
-        
+        for i in range(nbPorts):
+            dest = i + nbLanes*nbPorts + 1
+            for j in range(len(dir_mat)):
+                d = int(dir_mat[src, j])
+                if d != -1:
+                    if d < 3:
+                        print('router ',j,' direction ',d)
+                        if d == DIR['Out'] :
+                            if j == dest:
+                                roundabout_RT[src,i,d] = j
+                            else:
+                                pass
+                        else:
+                            roundabout_RT[src,i,d] = j
+                            
+    ### 2.b) delete deadlock path
+    for src in range(nbRouters_Roundabout):
+        src_lane =  (src-1) // nbPorts #exception for 0, but not addressed here
+        if src_lane == nbLanes-1: # if on the last lane (not the "ouput" lane)
+            print(src_lane)
+            for i in range(nbPorts):
+                if roundabout_RT[src,i,0] > -1: # if I have an outing connexion --> it's the only choice
+                    roundabout_RT[src,i,1] = -1 # no other option
+                    roundabout_RT[src,i,2] = -1 # no other option
+                if src == nbPorts*nbLanes:# if last router roundabout (next = output)
+                    if i > 0:
+                        roundabout_RT[src,i,1] = -1 # no other option
+                        roundabout_RT[src,i,2] = -1 # no other option
+                    else:
+                        pass
+                else: 
+                    if (i>0) and (i<((src%nbPorts))): #>0 because all router can join the last roundabout router.
+                        roundabout_RT[src,i,1] = -1 # no other option
+                        roundabout_RT[src,i,2] = -1 # no other option
+                    
+                    
+    ### Warning: destinations = last layer routers, the local router (id=0) is not considered
+    
+                                
     print(roundabout_RT)
         
-    return RT
+                
+    ### 3. All together
+    R_NoC_RT = -np.ones((nbRouters_R_NoC,nbRouters_NoC,3)) #--> number of destinations = number of Roundabout (local router of each roundabout)
+    
+    ###  merge 
+    # sweep through XY_NoC_RT
+    for i in range(nbRouters_NoC):  
+        for j in range(nbRouters_NoC):
+            if i == j: # local routing
+                for src in range(i*nbRouters_Roundabout,(i+1)*nbRouters_Roundabout):
+                    dest = i #i*nbRouters_Roundabout
+                    R_NoC_RT[src, dest, :] = roundabout_RT[src%nbRouters_Roundabout, 1, :]  # 1 --> second line of roundabout RT. Corresponds to the output router connected to the local 0
+                    if src%nbRouters_Roundabout == nbLanes*nbPorts+2: #+2 because ids order starts at 1 (0 is not in the "roundabout loop alignement") so +1, 
+                                                                 #and the local output is linked to the second of last lane, so +1 --> total = +2
+                        R_NoC_RT[src, dest, 0] = 0 
+                    for k in range(3):
+                        if R_NoC_RT[src, dest, k] != -1:
+                            val = R_NoC_RT[src, dest, k]
+                            R_NoC_RT[src, dest, k] = val + i*nbRouters_Roundabout
+        
+            else:
+                # 3.1. Determine the local output
+                src_NoC = i
+                dest_NoC = j
+                next = XY_NoC_RT[i,j]
+                src_x = src_NoC%NoC_x
+                src_y = src_NoC//NoC_y
+                dst_x = dest_NoC%NoC_x
+                dst_y = dest_NoC//NoC_y
+                
+                if dst_x > src_x:
+                    roundabout_line = 3 #to east , 3 --> forth line of roundabout RT.
+                    local_output = nbLanes*nbPorts+4
+                    dest_local_input_id = 1 #from west.
+                elif dst_x < src_x:
+                    roundabout_line = 0 #to west , 0 --> first line of roundabout RT.
+                    local_output = nbLanes*nbPorts+1
+                    dest_local_input_id = 4 #from east.
+                elif dst_y > src_y:
+                    roundabout_line = 4 #to north, 4 --> fifth line of roundabout RT.
+                    local_output = nbLanes*nbPorts+5
+                    dest_local_input_id = 3 #from south.
+                else:
+                    roundabout_line = 2 #to south, 2 --> third line of roundabout RT.
+                    local_output = nbLanes*nbPorts+3
+                    dest_local_input_id = 5 #from north.
+            
+                # 3.2. complete local routing
+                for src in range(i*nbRouters_Roundabout,(i+1)*nbRouters_Roundabout):
+                    R_NoC_RT[src, dest_NoC, :] = roundabout_RT[(src%nbRouters_Roundabout), roundabout_line, :]
+                    for k in range(3):
+                        if R_NoC_RT[src, dest_NoC, k] != -1:
+                            val = R_NoC_RT[src, dest_NoC, k]
+                            R_NoC_RT[src, dest_NoC, k] = val + i*nbRouters_Roundabout
+                    
+                 
+                # 3.3. complete inter-roundabout routing
+                src = i*nbRouters_Roundabout + local_output
+                dest = j # j*nbRouters_Roundabout
+                output = next*nbRouters_Roundabout+dest_local_input_id
+                R_NoC_RT[src, dest, 0] = output
+                
+    
+    ### 3.b) complete routing accross NoC + to local router
+    print('Final RT: ##############################"')
+    print(R_NoC_RT)   
+        
+    return R_NoC_RT
 
 ###############################################################################
 
@@ -495,7 +587,7 @@ def RoutingTable():
 def main():
     noc_file = './config/network.xml'
     my_graphe, routers = get_GrapheAndConnections(noc_file)
-"""
+
     nbRout = len(routers)
     Conn_Mat = -1*np.ones((nbRout, nbRout))
 
@@ -507,28 +599,26 @@ def main():
  
 #    Main Execution Point
     
-    RT = RoutingTable()
-"""
+    RT = RoutingTable(Conn_Mat)
 
-"""   
-    RT_Dir = np.empty(RT.shape, dtype=str)
-    for i in range(l_RT):
-        for j in range(l_RT):
-            val = RT[i,j]
-            #d_val = ''
-            if val != -1:
-                for k in range(l_RT):
-                    router = routers[k]
-                    if router.ID == j:
-                        idx = k
-                        break
-                val = routers[idx].connections[val]
-            else:
-                val = 'L'
-            RT_Dir[i,j] = val
-
-    #print("RT directions = \n", RT_Dir)
+ #nbRouters_R_NoC,nbRouters_NoC,3
+ 
+    RT_Dir = np.empty((nbRouters_R_NoC,nbRouters_NoC,3), dtype=int)
     
+    for i in range(nbRouters_R_NoC):
+        for j in range(nbRouters_NoC):
+            for k in range(3):
+                val = int(RT[i,j,k])
+                src = i
+                dest = j*nbRouters_Roundabout
+                if val != -1:
+                    d = Conn_Mat[src, val]
+                else:
+                    d = val
+                RT_Dir[i,j,k] = d
+
+    print("RT directions = \n", RT_Dir)
+    """
     RT_DirNum = np.empty(RT.shape, dtype=int)
     for i in range(l_RT):
         for j in range(l_RT):
@@ -538,9 +628,10 @@ def main():
     #print("RT directions number = \n", RT_DirNum)
     
     #Create text file from routing table
-    np.savetxt('RT.txt', RT_DirNum, fmt='%d', delimiter = ' ') 
+    np.savetxt('RT.txt', RT_DirNum, fmt='%d', delimiter = ' ')
+    """ 
 ###############################################################################
-"""
+
 
 if __name__ == "__main__":
     main()
