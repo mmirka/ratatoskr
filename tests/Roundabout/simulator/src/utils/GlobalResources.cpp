@@ -184,6 +184,49 @@ void GlobalResources::createRoutingTable()
     }
 }
 
+void GlobalResources::createRoutingTable_RNoC()
+{
+    std::string filename;
+    filename = RoutingTable_file;
+
+    std::ifstream infile(filename);
+    std::string line;
+
+    int cpt_line = 0;
+
+    while (std::getline(infile, line))
+    {
+        std::istringstream iss;
+        iss << line;
+        std::istringstream issw;
+        
+        int DIR;
+        std::vector<std::vector<int>> vline
+        
+        while(getline (iss, word, ' ')) {
+            std::vector<int> vword;
+            issw << word
+            while(getline (issw, d, ',')) {
+                DIR = std::stoi(d);
+                vword.push_back(DIR);
+            }
+            
+            vline.push_back(vword);
+        }
+        
+        RoutingTable_RNoC.push_back(vline);
+        cpt_line += 1;
+    }
+    std::cout<<"Routing Table :"<< std::endl;
+
+    for(auto vec : RoutingTable_RNoC)
+    {
+        for(auto x : vec)
+            std::cout<<x<<" , ";
+        std::cout << std::endl;
+    }
+}
+
 void GlobalResources::readConfigFile(const std::string& configPath)
 {
     pugi::xml_document doc;
@@ -199,7 +242,7 @@ void GlobalResources::readConfigFile(const std::string& configPath)
     outputFileName = gen_node.child("outputToFile").child_value();
     activateFlitTracing = gen_node.child("flitTracing").attribute("value").as_bool();
 
-    //ROUTING TABLE
+    //ROUTING TABLE MODE
     pugi::xml_node Routing_node = doc.child("configuration").child("verbose").child("router");
     if (Routing_node.child("routingTable_mode") != NULL){
         RoutingTable_mode = Routing_node.child("routingTable_mode").attribute("value").as_bool();
@@ -213,6 +256,24 @@ void GlobalResources::readConfigFile(const std::string& configPath)
         pugi::xml_node RTFile_node = Routing_node.child("routingTable_path");
         RoutingTable_file = readRequiredStringAttribute(RTFile_node, "value");
         createRoutingTable();
+        
+        // DIRECTION MATRIX
+        pugi::xml_node DMFile_node = Routing_node.child("directionMatrix_path");
+        DirectionMat_file = readRequiredStringAttribute(DMFile_node, "value");
+        
+    //Roundabout NoC MODE   
+    pugi::xml_node Routing_node = doc.child("configuration").child("verbose").child("router");
+    if (Routing_node.child("R_NoC_mode") != NULL){
+        R_NoC_mode = Routing_node.child("routingTable_mode").attribute("value").as_bool();
+    }
+    else{
+        R_NoC_mode = 0;
+    }
+    std::cout<<"R_NoC_mode: "<<RoutingTable_mode<<std::endl; 
+    if (R_NoC_mode == 1){
+        pugi::xml_node RTFile_node = Routing_node.child("routingTable_path");
+        RoutingTable_file = readRequiredStringAttribute(RTFile_node, "value");
+        createRoutingTable_RNoC();
         
         // DIRECTION MATRIX
         pugi::xml_node DMFile_node = Routing_node.child("directionMatrix_path");

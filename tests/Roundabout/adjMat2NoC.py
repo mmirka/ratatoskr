@@ -434,7 +434,7 @@ def main():
     NoC.plot()
           
     ### For netWork Writer: Memorize Positions and Links
-    filename = 'Mat2NoC_test'
+    filename = 'NoCs_data/Mat2NoC'
     data = Data()
     data.positions = NoC.positions
     data.links = NoC.links
