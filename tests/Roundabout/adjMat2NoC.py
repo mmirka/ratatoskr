@@ -65,8 +65,8 @@ class Archi:
 
         self.nbLanes = 2
         self.nbPorts = 5
-        self.NoC_x = 2
-        self.NoC_y = 2
+        self.NoC_x = 1
+        self.NoC_y = 1
         self.nbRouters_NoC = self.NoC_x * self.NoC_y # mesh
         self.nbRouters_Roundabout = (self.nbLanes + 1) * self.nbPorts + 1
         self.nbRouters_R_NoC = self.nbRouters_NoC * self.nbRouters_Roundabout
@@ -228,7 +228,7 @@ class Archi:
         return True
 
     def place_nodes(self):
-        width_roundabout = 0.6
+        width_roundabout = 1
         step_lane = (width_roundabout/2)/(self.nbLanes+1)
         print("step_lane = ",step_lane)
         angles_start = np.zeros(self.nbLanes+1)
@@ -249,7 +249,7 @@ class Archi:
                 RNoC_id = R_id//self.nbRouters_Roundabout
                 offset_x = self.positions[RNoC_id*self.nbRouters_Roundabout][0]
                 offset_y = self.positions[RNoC_id*self.nbRouters_Roundabout][1]
-                center_x = offset_x
+                center_x = offset_x + width_roundabout/2
                 center_y = offset_y+width_roundabout/2  # 0.3/2 + 0.05
                 
                 inR_id = R_id%self.nbRouters_Roundabout
@@ -412,7 +412,7 @@ def NoC_plot(data):
 def main():
 
     AM_creator = AdjMat_Creator()
-    RNoC_mat = AM_creator.R_NoC_AM()
+    RNoC_mat = AM_creator.Roundabout_AM()
 
     adj = RNoC_mat
     print(adj)
@@ -448,7 +448,7 @@ def main():
     NoC_plot(load_data)
 
     print("####### MIRACLE #########")
-
+    
 if __name__ == "__main__":
     main()
 

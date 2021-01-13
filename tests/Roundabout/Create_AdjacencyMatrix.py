@@ -55,14 +55,14 @@ class AdjMat_Creator():
         self.nbRouters_NoC = self.NoC_x * self.NoC_y # mesh
         self.nbRouters_Roundabout = (self.nbLanes + 1) * self.nbPorts + 1
         self.nbRouters_R_NoC = self.nbRouters_NoC * self.nbRouters_Roundabout
-        self.in_local = 2 #input router from local processing element i.e. injection input. WARNING: id=0 is for the local router, connected to the processing element, not the roundabout start.   
+        self.in_local = 1 #input router from local processing element i.e. injection input. WARNING: id=0 is for the local router, connected to the processing element, not the roundabout start.   
     ## Roundabout router AM
     def Roundabout_AM(self):
         # mat[src, dest]
         mat = np.zeros((self.nbRouters_Roundabout, self.nbRouters_Roundabout))
         # local I/O:
         mat[0, self.in_local] = 1
-        mat[self.nbLanes*self.nbPorts+self.nbLanes, 0] = 1
+        mat[self.nbLanes*self.nbPorts+1, 0] = 1
         # the lanes:
         for i in range(self.nbLanes):
             for j in range(self.nbPorts):
@@ -138,14 +138,14 @@ def main():
     R_mat = AM.Roundabout_AM()
     print(R_mat)
     
-    NoC_mat = AM.NoC_AM()
-    print(NoC_mat)
+    #NoC_mat = AM.NoC_AM()
+    #print(NoC_mat)
     
-    R_NoC_mat = AM.R_NoC_AM()
-    #print(R_NoC_mat)
-    print(R_NoC_mat[16,18])
-    print(R_NoC_mat[34,35])
-    print(R_NoC_mat[34,45])
+    #R_NoC_mat = AM.R_NoC_AM()
+    ##print(R_NoC_mat)
+    #print(R_NoC_mat[16,18])
+    #print(R_NoC_mat[34,35])
+    #print(R_NoC_mat[34,45])
 ###############################################################################
 
 
