@@ -23,11 +23,11 @@
 #include <iostream>
 #include "BaseRouting.h"
 
-class TableRouting : public BaseRouting {
+class RNoC_Table : public BaseRouting {
 public:
-    TableRouting() = default;
+    RNoC_Table() = default;
 
-    ~TableRouting() = default;
+    ~RNoC_Table() = default;
 
-    int route(int src_node_id, int dst_node_id, std::map<Channel, int> creditCounter) override;
+    int route_credit(int src_node_id, int dst_node_id, std::map<Channel, int> creditCounter) override;
 };

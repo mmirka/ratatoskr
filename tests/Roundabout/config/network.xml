@@ -7,7 +7,7 @@
   <nodeTypes>
     <nodeType id="0">
       <model value="RouterVC"/>
-      <routing value="Table"/>
+      <routing value="RNoC"/>
       <selection value="1stFreeVC"/>
       <clockDelay value="1"/>
       <arbiterType value="fair"/>

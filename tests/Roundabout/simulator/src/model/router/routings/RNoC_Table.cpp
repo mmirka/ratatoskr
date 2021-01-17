@@ -19,9 +19,62 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-#include "TableRouting.h"
+#include "RNoC_Table.h"
 
-int TableRouting::route(int src_node_id, int dst_node_id, std::map<Channel, int> creditCounter)
+int RNoC_Table::route_credit(int src_node_id, int dst_node_id, std::map<Channel, int> creditCounter)
+{
+    std::cout << "RNoC \n";
+    Node src_node = globalResources.nodes.at(src_node_id);
+    int con_pos;
+    
+    int direction;
+    int num = globalResources.nodes.size()/2;
+    int src = src_node_id%num;
+    int dst_raw = dst_node_id%num;
+    int dst = dst_raw%5 - 1;
+    std::cout << "src = " << src << " , dst = " << dst_raw << " \n";
+    
+    //std::cout << "read all dir \n";
+    
+    std::vector<int> destinations_l = globalResources.RoutingTable_RNoC[src][dst];
+    //std::cout << destinations_l.size() << "\n";
+    //for (auto c : destinations_l){
+    //    std::cout<<c<<" , ";
+    //}
+    //std::cout << "read dest \n";
+    for(int i = 0; i<3; i++){
+         if(destinations_l[i] != -1){
+              //std::cout << "Select dir : "<< destinations_l[i] <<"\n";
+              direction = destinations_l[i];
+              break;
+         }
+    }
+    std::cout << "dir = " << direction << " \n";
+
+    if (direction==0) {
+        con_pos = src_node.getConPosOfDir(DIR::Local);
+    }
+    else if (direction==2) {
+        con_pos = src_node.getConPosOfDir(DIR::West);
+    }
+    else if (direction==1) {
+        con_pos = src_node.getConPosOfDir(DIR::East);
+    }
+    else if (direction==4) {
+        con_pos = src_node.getConPosOfDir(DIR::South);
+    }
+    else if (direction==3) {
+        con_pos = src_node.getConPosOfDir(DIR::North);
+    }
+
+    //std::cout<<"Src: "<<src<<", Dst: "<<dst<<", Next: "<<direction<<", Connection: "<<con_pos<<std::endl;
+
+    return con_pos;
+}
+
+
+/*
+int RNoC_Table::route(int src_node_id, int dst_node_id, std::map<Channel, int> creditCounter)
 {
     Node src_node = globalResources.nodes.at(src_node_id);
     
@@ -78,3 +131,4 @@ int TableRouting::route(int src_node_id, int dst_node_id, std::map<Channel, int>
 
     return con_pos;
 }
+*/

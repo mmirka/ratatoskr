@@ -44,9 +44,9 @@
     <processingElements>
       <function_calls value="false"/>
       <send_flit value="false"/>
-      <send_head_flit value="false"/>
+      <send_head_flit value="true"/>
       <receive_flit value="false"/>
-      <receive_tail_flit value="false"/>
+      <receive_tail_flit value="true"/>
       <throttle value="false"/>
       <reset value="false"/>
     </processingElements>
@@ -60,8 +60,10 @@
       <reset value="false"/>
       <assign_channel value="false"/>
       <buffer_overflow value="true"/>
-      <routingTable_mode value="true"/>
+      <routingTable_mode value="false"/>
+      <R_NoC_mode value="true"/>
       <routingTable_path value="/home/mmirka/ratatoskr/tests/Roundabout/RT.txt"/>
+      <directionMatrix_path value="/home/mmirka/ratatoskr/tests/Roundabout/Direction_Mat.txt"/>
     </router>
     <netrace>
       <inject value="true"/>

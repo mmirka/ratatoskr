@@ -8,4 +8,4 @@
 
 
 Avancement:
-etape 3+ --> modifier ratatoskr: algo routage
+etape 3+ --> modifier ratatoskr: algo routage3

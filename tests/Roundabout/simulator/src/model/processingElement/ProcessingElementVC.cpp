@@ -267,35 +267,43 @@ void ProcessingElementVC::receive()
 
 void ProcessingElementVC::startSending(Task& task)
 {
-    float rn = globalResources.getRandomFloatBetween(0, 1);
-    int numOfPoss = task.possibilities.size();
-    for (unsigned int i = 0; i<numOfPoss; ++i) {
-        if (task.possibilities.at(i).probability>rn) {
-            std::vector<DataDestination> destVec = task.possibilities.at(i).dataDestinations;
-            for (DataDestination& dest : destVec) {
-                destToTask[dest] = task;
-                taskToDest[task].insert(dest);
+    int nbPEs = trafficPool->processingElements.size();
+    std::cout << "numOfPEs = " << nbPEs << "\n";
+    int PEid = this->id%nbPEs;
+    std::cout << "PEid = " << PEid << "\n";
+    if (std::count(globalResources.ListOfSources.begin(), globalResources.ListOfSources.end(), PEid)){
+        std::cout << "Element found \n";
+        float rn = globalResources.getRandomFloatBetween(0, 1);
+        int numOfPoss = task.possibilities.size();
+        for (unsigned int i = 0; i<numOfPoss; ++i) {
+            if (task.possibilities.at(i).probability>rn) {
+                std::vector<DataDestination> destVec = task.possibilities.at(i).dataDestinations;
+                for (DataDestination& dest : destVec) {
+                    destToTask[dest] = task;
+                    taskToDest[task].insert(dest);
 
-                countLeft[dest] = globalResources.getRandomIntBetween(dest.minCount, dest.maxCount);
+                    countLeft[dest] = globalResources.getRandomIntBetween(dest.minCount, dest.maxCount);
 
-                int delayTime =
-                        static_cast<int>((sc_time_stamp().value()/1000)
-                                +globalResources.getRandomIntBetween(dest.minDelay, dest.maxDelay));
+                    int delayTime =
+                            static_cast<int>((sc_time_stamp().value()/1000)
+                                    +globalResources.getRandomIntBetween(dest.minDelay, dest.maxDelay));
 
-                if (taskStartTime.count(task) && taskStartTime.at(task)>delayTime) {
-                    destWait[dest] = taskStartTime.at(task);
+                    if (taskStartTime.count(task) && taskStartTime.at(task)>delayTime) {
+                        destWait[dest] = taskStartTime.at(task);
+                    }
+                    else {
+                        destWait[dest] = delayTime;
+                    }
+                    event.notify(SC_ZERO_TIME);
                 }
-                else {
-                    destWait[dest] = delayTime;
-                }
-                event.notify(SC_ZERO_TIME);
+                break;
             }
-            break;
-        }
-        else {
-            rn -= task.possibilities.at(i).probability;
+            else {
+                rn -= task.possibilities.at(i).probability;
+            }
         }
     }
+    else {}
 }
 
 void ProcessingElementVC::checkNeed()

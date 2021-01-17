@@ -196,33 +196,52 @@ void GlobalResources::createRoutingTable_RNoC()
 
     while (std::getline(infile, line))
     {
-        std::istringstream iss;
-        iss << line;
-        std::istringstream issw;
+        std::istringstream iss(line);
         
         int DIR;
-        std::vector<std::vector<int>> vline
-        
+        std::vector<std::vector<int>> vline;
+        std::string word;
         while(getline (iss, word, ' ')) {
             std::vector<int> vword;
-            issw << word
-            while(getline (issw, d, ',')) {
-                DIR = std::stoi(d);
-                vword.push_back(DIR);
-            }
+            std::istringstream issw(word);
+            if (word.size() == 0){}
+            else{
+                std::string d;
+                while(getline (issw, d, ',')) {
+                    DIR = std::stoi(d);
+                    std::cout<<"DIR : "<< DIR << std::endl;
+                    vword.push_back(DIR);
+                }
             
-            vline.push_back(vword);
+                vline.push_back(vword);
+            }
         }
         
         RoutingTable_RNoC.push_back(vline);
         cpt_line += 1;
     }
     std::cout<<"Routing Table :"<< std::endl;
+    
+    /*std::cout<<"Routing Table size : "<< RoutingTable_RNoC.size() <<std::endl;
+    for(int i=0; i<RoutingTable_RNoC.size(); i++){
+         std::cout<<"line size : "<< RoutingTable_RNoC[i].size() <<std::endl;
+         for(int j=0; j<RoutingTable_RNoC[i].size(); j++){
+              std::cout<<"word size : "<< RoutingTable_RNoC[i][j].size();
+              for(int k=0; k<RoutingTable_RNoC[i][j].size(); k++){
+                   std::cout<<RoutingTable_RNoC[i][j][k]<<",";
+              }
+              std::cout << " ";
+         }
+         std::cout << std::endl;
+    }*/
 
     for(auto vec : RoutingTable_RNoC)
     {
-        for(auto x : vec)
-            std::cout<<x<<" , ";
+        for(auto x : vec){
+            for (auto c : x)
+                std::cout<<c<<" , ";
+            std::cout << " ";
+        }    
         std::cout << std::endl;
     }
 }
@@ -242,8 +261,9 @@ void GlobalResources::readConfigFile(const std::string& configPath)
     outputFileName = gen_node.child("outputToFile").child_value();
     activateFlitTracing = gen_node.child("flitTracing").attribute("value").as_bool();
 
-    //ROUTING TABLE MODE
+    //ROUTING MODE
     pugi::xml_node Routing_node = doc.child("configuration").child("verbose").child("router");
+    // ROUTING TABLE
     if (Routing_node.child("routingTable_mode") != NULL){
         RoutingTable_mode = Routing_node.child("routingTable_mode").attribute("value").as_bool();
     }
@@ -251,34 +271,30 @@ void GlobalResources::readConfigFile(const std::string& configPath)
         RoutingTable_mode = 0;
     }
     std::cout<<"Routing table mode: "<<RoutingTable_mode<<std::endl;
-    
-    if (RoutingTable_mode == 1){
-        pugi::xml_node RTFile_node = Routing_node.child("routingTable_path");
-        RoutingTable_file = readRequiredStringAttribute(RTFile_node, "value");
-        createRoutingTable();
-        
-        // DIRECTION MATRIX
-        pugi::xml_node DMFile_node = Routing_node.child("directionMatrix_path");
-        DirectionMat_file = readRequiredStringAttribute(DMFile_node, "value");
-        
-    //Roundabout NoC MODE   
-    pugi::xml_node Routing_node = doc.child("configuration").child("verbose").child("router");
+     
+    //Roundabout NoC    
     if (Routing_node.child("R_NoC_mode") != NULL){
-        R_NoC_mode = Routing_node.child("routingTable_mode").attribute("value").as_bool();
+        R_NoC_mode = Routing_node.child("R_NoC_mode").attribute("value").as_bool();
     }
     else{
         R_NoC_mode = 0;
     }
-    std::cout<<"R_NoC_mode: "<<RoutingTable_mode<<std::endl; 
-    if (R_NoC_mode == 1){
+    std::cout<<"R_NoC_mode: "<<R_NoC_mode<<std::endl; 
+    
+    if ((R_NoC_mode == 1) || (RoutingTable_mode == 1)){
         pugi::xml_node RTFile_node = Routing_node.child("routingTable_path");
         RoutingTable_file = readRequiredStringAttribute(RTFile_node, "value");
-        createRoutingTable_RNoC();
         
         // DIRECTION MATRIX
         pugi::xml_node DMFile_node = Routing_node.child("directionMatrix_path");
         DirectionMat_file = readRequiredStringAttribute(DMFile_node, "value");
+        
+        if (R_NoC_mode == 1) createRoutingTable_RNoC();
+        if (RoutingTable_mode == 1) createRoutingTable();
+        
     }
+        
+    
 
     //NOC
     pugi::xml_node noc_node = doc.child("configuration").child("noc");
@@ -346,7 +362,7 @@ void GlobalResources::readNoCLayout(const std::string& nocPath)
     readNodeTypes(noc_node);
     readNodes(noc_node);
     readConnections(noc_node);
-    if (!RoutingTable_mode){
+    if (!RoutingTable_mode && !R_NoC_mode){
         fillDirInfoOfNodeConn();
     }
     else{

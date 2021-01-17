@@ -128,20 +128,22 @@ SyntheticPool::uniform(taskID_t& taskId, int& phaseId,
         DataType dataType = DataType(dataTypeId, std::to_string(dataTypeId));
         for (unsigned int j = 0; j<numOfPEs; ++j) {
             if (i!=j) { // a PE should not send data to itself.
-                Node n = processingElements.at(j)->node;
-                int minInterval = std::floor((float) maxClockDelay/sp.injectionRate);
-                int maxInterval = std::floor((float) maxClockDelay/sp.injectionRate);
+                if(std::count(globalResources.ListOfDestinations.begin(), globalResources.ListOfDestinations.end(), j)){ // a PE should only send to pre-defined destinations
+                    Node n = processingElements.at(j)->node;
+                    int minInterval = std::floor((float) maxClockDelay/sp.injectionRate);
+                    int maxInterval = std::floor((float) maxClockDelay/sp.injectionRate);
 
-                std::vector<DataDestination> dests{};
-                DataDestination dest = DataDestination(dataDestId, dataType.id, n.id, minInterval, maxInterval);
-                dest.minCount = sp.minCount;
-                dest.maxCount = sp.maxCount;
-                dest.minDelay = sp.minDelay;
-                dest.maxDelay = sp.maxDelay;
-                dests.push_back(dest);
-                possibilities.emplace_back(poss_id, 1.f/(numOfPEs-1), dests);
-                ++poss_id;
-                ++dataDestId;
+                    std::vector<DataDestination> dests{};
+                    DataDestination dest = DataDestination(dataDestId, dataType.id, n.id, minInterval, maxInterval);
+                    dest.minCount = sp.minCount;
+                    dest.maxCount = sp.maxCount;
+                    dest.minDelay = sp.minDelay;
+                    dest.maxDelay = sp.maxDelay;
+                    dests.push_back(dest);
+                    possibilities.emplace_back(poss_id, 1.f/(numOfPEs-1), dests);
+                    ++poss_id;
+                    ++dataDestId;
+                }
             }
         }
         task.possibilities = possibilities;

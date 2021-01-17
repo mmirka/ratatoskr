@@ -58,6 +58,8 @@ public:
     bool R_NoC_mode;
     std::vector <std::vector<int> > RoutingTable;
     std::vector <std::vector <std::vector<int> > > RoutingTable_RNoC;
+    std::vector<int> ListOfSources{0,1,2,3,4,5};
+    std::vector<int> ListOfDestinations{11,12,13,14,15};
     std::string DirectionMat_file;
     //Application
     std::string benchmark;
@@ -146,5 +148,7 @@ private:
     float readRequiredFloatAttribute(pugi::xml_node, const char*);
     
     void createRoutingTable();
+    
+    void createRoutingTable_RNoC();
 };
 
