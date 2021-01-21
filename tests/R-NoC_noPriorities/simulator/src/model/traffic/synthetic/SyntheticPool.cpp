@@ -102,6 +102,8 @@ SyntheticPool::uniform(taskID_t& taskId, int& phaseId,
 {
     int numOfPEs = processingElements.size();
     for (unsigned int i = 0; i<numOfPEs; ++i) {
+    //for (unsigned int i : globalResources.ListOfSources) {
+        std::cout << "Source ID = " << i << " \n";
         Task task = Task(taskId, processingElements.at(i)->node.id);
         task.minStart = sp.minStart;
         task.maxStart = sp.maxStart;
@@ -127,8 +129,10 @@ SyntheticPool::uniform(taskID_t& taskId, int& phaseId,
         int dataTypeId = globalResources.getRandomIntBetween(0, globalResources.numberOfTrafficTypes-1);
         DataType dataType = DataType(dataTypeId, std::to_string(dataTypeId));
         for (unsigned int j = 0; j<numOfPEs; ++j) {
+        //for (unsigned int j : globalResources.ListOfDestinations) {
             if (i!=j) { // a PE should not send data to itself.
                 if(std::count(globalResources.ListOfDestinations.begin(), globalResources.ListOfDestinations.end(), j)){ // a PE should only send to pre-defined destinations
+                    std::cout << "Destination ID = " << j << " \n";
                     Node n = processingElements.at(j)->node;
                     int minInterval = std::floor((float) maxClockDelay/sp.injectionRate);
                     int maxInterval = std::floor((float) maxClockDelay/sp.injectionRate);
@@ -150,9 +154,10 @@ SyntheticPool::uniform(taskID_t& taskId, int& phaseId,
         globalResources.tasks.push_back(task);
         ++taskId;
     }
+    std::cout << "out Loop \n";
     shuffle_execute_tasks(phaseId);
     ++phaseId;
-
+    std::cout << "before return \n";
     return std::map<int, int>();
 }
 
@@ -295,6 +300,9 @@ void SyntheticPool::shuffle_execute_tasks(int phaseId)
 {
     // Execute the tasks in random order
     int numOfPEs = processingElements.size();
+    // modif mmirka
+    //int numOfSources = globalResources.ListOfSources.size();
+    //int offset = phaseId*numOfSources;
     int offset = phaseId*numOfPEs;
     auto start = globalResources.tasks.begin()+offset;
     auto end = globalResources.tasks.end();
