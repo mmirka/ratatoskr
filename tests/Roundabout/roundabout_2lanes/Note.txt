@@ -1,0 +1,11 @@
+0. Refaire Create_AdjacencyMatrix.py --> new router, roundabout only
+1. Run adjmat2noc.py --> create NoC data for R-NoC (see main function) _ to do
+2. Run configure_AdjMat.py --> create the config files (config.xml and network.xml), according to config.ini and NoCs_data/Mat2NoC _ todo
+3. Run Create_RoutingTable --> create RT.txt and Direction_Mat.txt for the routing table mode _ todo
+4. Run ./sim
+
+
+
+
+Avancement:
+etape 3+ --> modifier ratatoskr: algo routage3

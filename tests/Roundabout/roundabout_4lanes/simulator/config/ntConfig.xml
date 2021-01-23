@@ -1,41 +1,20 @@
 <?xml version="1.0" ?>
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <general>
-    <simulationTime value="10001"/>
+    <simulationTime value="100000"/>
     <outputToFile value="true">report</outputToFile>
   </general>
   <noc>
     <nocFile>config/network.xml</nocFile>
-    <flitsPerPacket value="32"/>
+    <flitsPerPacket value="4"/>
+    <bitWidth value="32"/>
     <Vdd value="5"/>
   </noc>
   <application>
-    <benchmark>synthetic</benchmark>
-    <synthetic>
-      <phase name="warmup">
-        <distribution value="uniform"/>
-        <start min="0" max="0"/>
-        <duration min="1" max="1"/>
-        <repeat min="-1" max="-1"/>
-        <delay min="0" max="0"/>
-        <injectionRate value="0.001"/>
-        <count min="1" max="1"/>
-        <hotspot value="0"/>
-      </phase>
-      <phase name="run">
-        <distribution value="uniform"/>
-        <start min="1" max="1"/>
-        <duration min="10001" max="10001"/>
-        <repeat min="-1" max="-1"/>
-        <delay min="0" max="0"/>
-        <injectionRate value="0.0031"/>
-        <count min="1" max="1"/>
-        <hotspot value="0"/>
-      </phase>
-    </synthetic>
+    <benchmark>netrace</benchmark>
     <simulationFile>traffic/pipelinePerformance_2D/PipelineResetTB.xml</simulationFile>
     <mappingFile>traffic/pipelinePerformance_2D/PipelineResetTBMapping.xml</mappingFile>
-    <netraceFile>traffic/netrace/example.tra.bz2</netraceFile>
+    <netraceFile>src/model/traffic/netrace/testraces/example.tra.bz2</netraceFile>
     <netraceStartRegion value="0"/>
     <isUniform value="false"/>
     <numberOfTrafficTypes value="5"/>
@@ -60,10 +39,6 @@
       <reset value="false"/>
       <assign_channel value="false"/>
       <buffer_overflow value="true"/>
-      <routingTable_mode value="false"/>
-      <R_NoC_mode value="true"/>
-      <routingTable_path value="/home/mmirka/ratatoskr/tests/Roundabout/roundabout_4lanes/RT.txt"/>
-      <directionMatrix_path value="/home/mmirka/ratatoskr/tests/Roundabout/roundabout_4lanes/Direction_Mat.txt"/>
     </router>
     <netrace>
       <inject value="true"/>
@@ -79,6 +54,6 @@
     </tasks>
   </verbose>
   <report>
-    <bufferReportRouters>012345678</bufferReportRouters>
+    <bufferReportRouters>5 6 9 10 21 22 25 26 37 38 41 42</bufferReportRouters>
   </report>
 </configuration>
