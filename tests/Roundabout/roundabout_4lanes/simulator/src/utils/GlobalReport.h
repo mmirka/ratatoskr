@@ -32,6 +32,7 @@
 class GlobalReport {
 public:
     int droppedCounter = 0;             // number of dropped flits.
+    long int sentFlits;
 
     Statistics latencyNetwork;
     Statistics latencyFlit;
