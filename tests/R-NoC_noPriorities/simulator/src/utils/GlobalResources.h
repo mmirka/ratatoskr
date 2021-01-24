@@ -77,8 +77,8 @@ public:
     bool R_NoC_mode;
     std::vector <std::vector<int> > RoutingTable;
     std::vector <std::vector <std::vector<int> > > RoutingTable_RNoC;
-    std::vector<int> ListOfSources{0,16,32,48};
-    std::vector<int> ListOfDestinations{0,16,32,48};
+    std::vector<int> ListOfSources{0,26,52,68};
+    std::vector<int> ListOfDestinations{0,26,52,68};
     std::string DirectionMat_file;
     // ___ R-NoC params
     int nbLanes = 2;

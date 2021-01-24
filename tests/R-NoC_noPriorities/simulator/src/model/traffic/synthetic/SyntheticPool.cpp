@@ -144,7 +144,8 @@ SyntheticPool::uniform(taskID_t& taskId, int& phaseId,
                     dest.minDelay = sp.minDelay;
                     dest.maxDelay = sp.maxDelay;
                     dests.push_back(dest);
-                    possibilities.emplace_back(poss_id, 1.f/(numOfPEs-1), dests);
+                    //possibilities.emplace_back(poss_id, 1.f/(numOfPEs-1), dests);
+                    possibilities.emplace_back(poss_id, 1.f/(globalResources.ListOfDestinations.size()-1), dests);
                     ++poss_id;
                     ++dataDestId;
                 }
