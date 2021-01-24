@@ -1,0 +1,3 @@
+/home/mmirka/ratatoskr/bin/urand/collectes/netrace/build/CMakeFiles/rebuild_cache.dir
+/home/mmirka/ratatoskr/bin/urand/collectes/netrace/build/CMakeFiles/edit_cache.dir
+/home/mmirka/ratatoskr/bin/urand/collectes/netrace/build/CMakeFiles/sim.dir

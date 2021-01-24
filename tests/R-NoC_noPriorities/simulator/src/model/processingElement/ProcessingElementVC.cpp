@@ -268,11 +268,11 @@ void ProcessingElementVC::receive()
 void ProcessingElementVC::startSending(Task& task)
 {
     int nbPEs = trafficPool->processingElements.size();
-    std::cout << "numOfPEs = " << nbPEs << "\n";
+    //std::cout << "numOfPEs = " << nbPEs << "\n";
     int PEid = this->id%nbPEs;
-    std::cout << "PEid = " << PEid << "\n";
+    //std::cout << "PEid = " << PEid << "\n";
     if (std::count(globalResources.ListOfSources.begin(), globalResources.ListOfSources.end(), PEid)){
-        std::cout << "Element found \n";
+        //std::cout << "Element found \n";
         float rn = globalResources.getRandomFloatBetween(0, 1);
         int numOfPoss = task.possibilities.size();
         for (unsigned int i = 0; i<numOfPoss; ++i) {

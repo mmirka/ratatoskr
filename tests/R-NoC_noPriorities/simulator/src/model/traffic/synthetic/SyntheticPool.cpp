@@ -103,7 +103,7 @@ SyntheticPool::uniform(taskID_t& taskId, int& phaseId,
     int numOfPEs = processingElements.size();
     for (unsigned int i = 0; i<numOfPEs; ++i) {
     //for (unsigned int i : globalResources.ListOfSources) {
-        std::cout << "Source ID = " << i << " \n";
+        //std::cout << "Source ID = " << i << " \n";
         Task task = Task(taskId, processingElements.at(i)->node.id);
         task.minStart = sp.minStart;
         task.maxStart = sp.maxStart;
@@ -132,7 +132,7 @@ SyntheticPool::uniform(taskID_t& taskId, int& phaseId,
         //for (unsigned int j : globalResources.ListOfDestinations) {
             if (i!=j) { // a PE should not send data to itself.
                 if(std::count(globalResources.ListOfDestinations.begin(), globalResources.ListOfDestinations.end(), j)){ // a PE should only send to pre-defined destinations
-                    std::cout << "Destination ID = " << j << " \n";
+                    //std::cout << "Destination ID = " << j << " \n";
                     Node n = processingElements.at(j)->node;
                     int minInterval = std::floor((float) maxClockDelay/sp.injectionRate);
                     int maxInterval = std::floor((float) maxClockDelay/sp.injectionRate);
@@ -155,10 +155,10 @@ SyntheticPool::uniform(taskID_t& taskId, int& phaseId,
         globalResources.tasks.push_back(task);
         ++taskId;
     }
-    std::cout << "out Loop \n";
+    //std::cout << "out Loop \n";
     shuffle_execute_tasks(phaseId);
     ++phaseId;
-    std::cout << "before return \n";
+    //std::cout << "before return \n";
     return std::map<int, int>();
 }
 

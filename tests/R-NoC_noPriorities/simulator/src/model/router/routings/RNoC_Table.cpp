@@ -56,27 +56,27 @@ int RNoC_Table::route_credit(int src_node_id, int dst_node_id, std::map<Channel,
     }
     else{ // XY 
         if (dst_pos.x<src_pos.x) {
-            std::cout << "dst_pos.x = " << dst_pos.x << " , src_pos.x = " << src_pos.x << " \n";
-            column = 1;
+            //std::cout << "dst_pos.x = " << dst_pos.x << " , src_pos.x = " << src_pos.x << " \n";
+            column = 4;
         }
         else if (dst_pos.x>src_pos.x) {
-            std::cout << "dst_pos.x = " << dst_pos.x << " , src_pos.x = " << src_pos.x << " \n";
-            column = 3;
-        }
-        else if (dst_pos.y<src_pos.y) {
-            std::cout << "dst_pos.x = " << dst_pos.x << " , src_pos.x = " << src_pos.x << " \n";
+            //std::cout << "dst_pos.x = " << dst_pos.x << " , src_pos.x = " << src_pos.x << " \n";
             column = 2;
         }
+        else if (dst_pos.y<src_pos.y) {
+            //std::cout << "dst_pos.x = " << dst_pos.x << " , src_pos.x = " << src_pos.x << " \n";
+            column = 1;
+        }
         else if (dst_pos.y>src_pos.y) {
-            std::cout << "dst_pos.x = " << dst_pos.x << " , src_pos.x = " << src_pos.x << " \n";
-            column = 4;
+            //std::cout << "dst_pos.x = " << dst_pos.x << " , src_pos.x = " << src_pos.x << " \n";
+            column = 3;
         }
     }
     
-    std::cout << "RNoC \n";
+    //std::cout << "RNoC \n";
     
     int direction;
-    std::cout << "src = " << src << " , dst = " << dst_raw << " , column = " << column << " \n";
+    //std::cout << "src = " << src << " , dst = " << dst_raw << " , column = " << column << " \n";
     
     //std::cout << "read all dir \n";
     
@@ -93,7 +93,7 @@ int RNoC_Table::route_credit(int src_node_id, int dst_node_id, std::map<Channel,
               break;
          }
     }
-    std::cout << "dir = " << direction << " \n";
+    //std::cout << "dir = " << direction << " \n";
     int con_pos;
     if (direction==0) {
         con_pos = src_node.getConPosOfDir(DIR::Local);
@@ -111,7 +111,7 @@ int RNoC_Table::route_credit(int src_node_id, int dst_node_id, std::map<Channel,
         con_pos = src_node.getConPosOfDir(DIR::North);
     }
 
-    //std::cout<<"Src: "<<src<<", Dst: "<<dst<<", Next: "<<direction<<", Connection: "<<con_pos<<std::endl;
+    //std::cout<<"Src: "<<src<<", Dst: "<<dst_raw<<", Next: "<<direction<<", Connection: "<<con_pos<<std::endl;
 
     return con_pos;
 }

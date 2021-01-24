@@ -36,14 +36,20 @@ from math import pi
 ### Global variables
 
 # roundabout info
-nbLanes = 2
+nbLanes = 4
+nbPrimaryLanes = 2
+nbPrimaryLanes = 2
+inputLane0 = {"L":2, "W":1}
+inputLane1 = {"8":2, "S":6, "E":7}
+nextLaneTransition = [5, 7]
+endLaneTransition = [5, 7, 15, 17]
 nbPorts = 5
 NoC_x = 2
 NoC_y = 2
 nbRouters_NoC = NoC_x * NoC_y # mesh
 nbRouters_Roundabout = (nbLanes + 1) * nbPorts + 1
 nbRouters_R_NoC = nbRouters_NoC * nbRouters_Roundabout
-in_local = 1
+in_local = 2
 
 
 """
@@ -161,7 +167,7 @@ class Router(object):
 ######### Get graphe and connections from network.xml file #############
 
 DIR_classic = {'L': 0, 'E': 1, 'W': 2, 'N': 3, 'S': 4, 'U': 5, 'D': 6}
-DIR = {'Local':0, 'Out': 1, 'Switch': 2, 'Keep': 3, 'In1': 4, 'In2': 5, 'In3': 6}
+DIR = {'Local':0, 'Out': 1, 'Switch': 2, 'Keep': 3, 'In1': 4, 'In2': 5, 'In3': 6, 'In4': 7}
 #DIR = {'Out': 0, 'Switch': 1, 'Keep': 2, 'In1': 3, 'In2': 4, 'In3': 5}
 
 def get_GrapheAndConnections_old(noc_file):
@@ -328,12 +334,7 @@ def Compute_directions(routers):
                 if r1_roundabout_ID == r0_roundabout_ID - 1: #receive next
                     direction = 'In1'
                 elif r1_roundabout_ID == r0_roundabout_ID + 1: #send next
-                    if r0_roundabout_ID == 0:
-                        direction = 'Switch'
-                    elif r1_lane == nbLanes:
-                        direction = 'Out'
-                    else:
-                        direction = 'Keep'
+                    direction = 'Keep'
                 elif r1_roundabout_ID > r0_roundabout_ID: # change lane --> switch or out  
                     if r1_lane == nbLanes:
                         if r0_roundabout_ID == 0:
@@ -341,24 +342,43 @@ def Compute_directions(routers):
                         else:
                             direction = 'Out'
                     else:
-                        direction = 'Switch'
-                else: # receive from a switching or outing
+                        if r1_lane == r0_lane:
+                            direction = 'In1'
+                        else:
+                            direction = 'Switch'
+                elif r1_roundabout_ID < r0_roundabout_ID: # receive from a switching or outing
                     if r1_roundabout_ID == 0:
                         if r1_lane == r0_lane:
                             direction = 'Out'
                         else:
                             direction = 'In2'
+                    elif r1_lane == r0_lane:
+                        direction = 'Keep'
                     elif r1_lane == r0_lane-1: #previous lane --> higher priority
                         direction = 'In1'
                     else: # for now only 2 input max ################################## !!!!!! IMPORTANT !!!!!! #############################
                         direction = 'In2'
+                       
+                if r0_lane == nbLanes and r0_roundabout_ID != 0:
+                    if r1_lane == 0:
+                        direction = 'In4'
+                    elif r1_lane == 1:
+                        direction = 'In3'
+                    elif r1_lane == 2:
+                        direction = 'In2'
+                    elif r1_lane == 3:
+                        direction = 'In1'
             else:
                 if r0_lane < r1_lane: # receive from other roundabout
                     direction = 'In2'
                 else:
                     direction = 'Out' # send to other roundabout
             
+            
+            
             routers[r0_ID].connections[r1_ID] = direction     
+            
+        
             
     return routers
 
@@ -547,6 +567,7 @@ def main():
     for i in range(nbRout):
         for key, val in routers[i].connections.items():
             Conn_Mat[i, key] = DIR[val]
+            print("src: ", i, ", dst: ", key," , conn: ", DIR[val])
  
     
  
