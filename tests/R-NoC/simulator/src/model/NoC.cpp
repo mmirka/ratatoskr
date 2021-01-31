@@ -52,7 +52,7 @@ void NoC::createClocks() {
     for (const auto &nodeType : globalResources.nodeTypes) {
         clocks.at(nodeType->id) = std::make_unique<sc_clock>(
                 ("NodeType" + std::to_string(nodeType->id) + "Clock").c_str(),
-                nodeType->clockDelay, SC_NS);
+                nodeType->clockDelay, SC_NS); // MMirka  SC_PS 
     }
 }
 
@@ -103,6 +103,8 @@ void NoC::createNetworkParticipants() {
             tp->processingElements.at(n.id % numOfPEs) = pe;
         }
     }
+    
+    
 }
 
 void NoC::createSigContainers() {
@@ -287,6 +289,15 @@ while (1) {
 void NoC::runNoC() {
     for (auto &r : networkParticipants) {
         r->initialize();
+    }
+    std::cout << "########################### vector of creditCounter #########################"<<std::endl;
+    int cpt = 0;
+    for(auto it : globalReport.ptr_creditCounters){
+        for(auto elem = (*it).cbegin(); elem != (*it).cend(); ++elem){
+            std::cout << " in creditcounter" << cpt << "\n";
+            std::cout << elem->first << " " << elem->second << " " << "\n";
+        }
+        cpt ++;
     }
     tp->start();
 }

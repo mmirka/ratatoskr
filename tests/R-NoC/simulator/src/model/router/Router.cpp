@@ -19,12 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-#include <model/router/routings/XYZRouting.h>
-#include <model/router/routings/HeteroXYZRouting.h>
-#include <model/router/routings/RandomXYZRouting.h>
-#include <model/router/routings/RandomHeteroXYZRouting.h>
-#include <model/router/routings/ZXYZRouting.h>
-#include <model/router/routings/TableRouting.h>
+//#include <model/router/routings/XYZRouting.h>
+//#include <model/router/routings/HeteroXYZRouting.h>
+//#include <model/router/routings/RandomXYZRouting.h>
+//#include <model/router/routings/RandomHeteroXYZRouting.h>
+//#include <model/router/routings/ZXYZRouting.h>
+//#include <model/router/routings/TableRouting.h>
+#include <model/router/routings/RNoC_Table.h>
 #include "Router.h"
 
 Router::Router(sc_module_name nm, Node& node)
@@ -41,7 +42,7 @@ Router::Router(sc_module_name nm, Node& node)
     rep.reportAttribute(dbid, "clock", std::to_string(node.type->clockDelay));
     rep.reportAttribute(dbid, "type", node.type->model);
 
-    if(node.type->routing=="XYZ")
+    /*if(node.type->routing=="XYZ")
         routingAlg = std::make_unique<XYZRouting>();
     else if(node.type->routing=="HeteroXYZ")
         routingAlg = std::make_unique<HeteroXYZRouting>();
@@ -53,6 +54,10 @@ Router::Router(sc_module_name nm, Node& node)
         routingAlg = std::make_unique<ZXYZRouting>();
     else if(node.type->routing=="Table")
         routingAlg = std::make_unique<TableRouting>();
+    else*/ 
+    if(node.type->routing=="RNoC"){
+        routingAlg = std::make_unique<RNoC_Table>();
+    }    
 }
 
 Router::~Router()

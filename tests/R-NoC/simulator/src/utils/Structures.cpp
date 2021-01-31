@@ -172,6 +172,24 @@ connID_t Node::getConnWithNode(const Node& connectedNode)
     return -1;
 }
 
+// my function
+
+int Node::getDestIdOfDir(DIR::TYPE dir)
+{
+    if (destIDOfDir.count(dir)==1)
+        return destIDOfDir.at(dir);
+    else
+        return -1; // so the caller can use this method in a condition
+}
+
+void Node::setDestIdOfDir(DIR::TYPE dir, int DestID)
+{
+    destIDOfDir.insert({dir, DestID});
+}
+
+
+
+
 Connection::Connection(connID_t id, const std::vector<nodeID_t>& nodes, const std::vector<int>& vcsCount,
         const std::vector<int>& buffersDepth,
         const std::vector<std::vector<int>>& buffersDepths, float length, int width, int depth)

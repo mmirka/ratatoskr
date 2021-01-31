@@ -32,6 +32,8 @@
 class GlobalReport {
 public:
     int droppedCounter = 0;             // number of dropped flits.
+    std::vector<std::map<Channel, int>*> ptr_creditCounters;    //  vector of pointers to creditCounters
+    long int sentFlits;
 
     Statistics latencyNetwork;
     Statistics latencyFlit;

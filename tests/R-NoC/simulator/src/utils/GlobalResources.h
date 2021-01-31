@@ -36,6 +36,7 @@
 #include <fstream>
 #include <iostream>
 
+
 class GlobalResources {
 
 public:
@@ -53,12 +54,7 @@ public:
     float routingVerticalThreshold = 1.0f;
     float Vdd = 1.0f;
     std::string bufferDepthType;
-    std::string RoutingTable_file;
-    bool RoutingTable_mode;
-    bool R_NoC_mode;
-    std::vector <std::vector<int> > RoutingTable;
-    std::vector <std::vector <std::vector<int> > > RoutingTable_RNoC;
-    std::string DirectionMat_file;
+    
     //Application
     std::string benchmark;
     std::string data_file;
@@ -76,6 +72,25 @@ public:
     bool isUniform;
     int numberOfTrafficTypes;
     int synthetic_start_measurement_time;
+    // My params _ MMirka
+    std::string RoutingTable_file;
+    bool RoutingTable_mode;
+    bool R_NoC_mode;
+    std::vector <std::vector<int> > RoutingTable;
+    std::vector <std::vector <std::vector<int> > > RoutingTable_RNoC;
+    std::vector<int> ListOfSources{0,26,52,78};
+    std::vector<int> ListOfDestinations{0,26,52,78};
+    std::string DirectionMat_file;
+    // ___ R-NoC params
+    int nbLanes = 4;
+    int nbPorts = 5;
+    int NoC_x = 2;
+    int NoC_y = 2;
+    int nbRouters_NoC = NoC_x * NoC_y; // mesh
+    int nbRouters_Roundabout = (nbLanes + 1) * nbPorts + 1;
+    int nbRouters_R_NoC = nbRouters_NoC * nbRouters_Roundabout;
+    int in_local = 2;
+    
     // General NoC data
     std::vector<std::shared_ptr<NodeType>> nodeTypes;
     std::vector<Node> nodes;
@@ -146,5 +161,7 @@ private:
     float readRequiredFloatAttribute(pugi::xml_node, const char*);
     
     void createRoutingTable();
+    
+    void createRoutingTable_RNoC();
 };
 

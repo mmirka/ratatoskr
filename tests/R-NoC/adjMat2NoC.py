@@ -63,7 +63,13 @@ class Archi:
 
         self.links=[]
 
-        self.nbLanes = 2
+        self.nbLanes = 4
+        self.nbPrimaryLanes = 2
+        self.nbPrimaryLanes = 2
+        self.inputLane0 = {"L":2, "W":1}
+        self.inputLane1 = {"8":2, "S":6, "E":7}
+        self.nextLaneTransition = [5, 7]
+        self.endLaneTransition = [5, 7, 15, 17]
         self.nbPorts = 5
         self.NoC_x = 2
         self.NoC_y = 2
@@ -228,11 +234,12 @@ class Archi:
         return True
 
     def place_nodes(self):
-        width_roundabout = 0.6
+        width_roundabout = 0.8
         step_lane = (width_roundabout/2)/(self.nbLanes+1)
         print("step_lane = ",step_lane)
         angles_start = np.zeros(self.nbLanes+1)
-        angle_step = (2*math.pi)/self.nbPorts
+        angle_step = (2*math.pi)/(self.nbPorts-1)
+        angle_local = 5*math.pi/4
         
         #for k, value in self.graph.items():
         for k in range(self.nbRouters_R_NoC):
@@ -249,7 +256,7 @@ class Archi:
                 RNoC_id = R_id//self.nbRouters_Roundabout
                 offset_x = self.positions[RNoC_id*self.nbRouters_Roundabout][0]
                 offset_y = self.positions[RNoC_id*self.nbRouters_Roundabout][1]
-                center_x = offset_x
+                center_x = offset_x + width_roundabout/2
                 center_y = offset_y+width_roundabout/2  # 0.3/2 + 0.05
                 
                 inR_id = R_id%self.nbRouters_Roundabout
@@ -258,20 +265,21 @@ class Archi:
                 print(R_id, " ", inR_id, " ", id_lane)
                 radius = step_lane+id_lane*step_lane
                 print("radius = ", radius)
-                if id_lane%2 == 0:
-                    if id_lane == self.nbLanes:
-                        angle_start=angles_start[id_lane-1]
-                        angles_start[id_lane] = angle_start
-                    else:
-                        angle_start = math.pi + angle_step/2
-                        angles_start[id_lane] = angle_start
+                if inR_id%5 == 1:
+                    print("local output")
+                    angle_r = angle_local
                 else:
-                    angle_start = math.pi 
-                    angles_start[id_lane] = angle_start
-                    
-                angle_steps = angle_step*id_port                
-                relative_x = math.cos(angle_start+angle_steps) * radius  
-                relative_y = math.sin(angle_start+angle_steps) * radius 
+                    print("other output")
+                    if inR_id%5 == 0:
+                        angle_r = math.pi
+                    else:
+                        angle_r = -angle_step + angle_step*(inR_id%5 - 2)
+        
+                if id_lane == self.nbLanes:
+                    angle_r += math.pi/16
+                                
+                relative_x = math.cos(angle_r) * radius  
+                relative_y = math.sin(angle_r) * radius 
                 
                 x = relative_x + center_x
                 y = relative_y + center_y
@@ -284,7 +292,7 @@ class Archi:
                 if [n1, n0] in self.links:
                     pass
                 else:
-                    self.links.append([n0, n1])  
+                    self.links.append([n0, n1]) 
                     
                     
 
@@ -434,7 +442,7 @@ def main():
     NoC.plot()
           
     ### For netWork Writer: Memorize Positions and Links
-    filename = 'Mat2NoC_test'
+    filename = 'NoCs_data/Mat2NoC'
     data = Data()
     data.positions = NoC.positions
     data.links = NoC.links
@@ -448,7 +456,7 @@ def main():
     NoC_plot(load_data)
 
     print("####### MIRACLE #########")
-
+    
 if __name__ == "__main__":
     main()
 

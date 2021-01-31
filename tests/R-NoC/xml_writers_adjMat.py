@@ -604,8 +604,19 @@ class ConfigWriter(Writer):
                 routing_table_mode_node.set('value', 'true')
                 routing_table_path_node = ET.SubElement(node, 'routingTable_path')
                 routing_table_path_node.set('value', self.config.RoutingTablePath)
+                routing_table_path_node = ET.SubElement(node, 'directionMatrix_path')
+                routing_table_path_node.set('value', self.config.DirectionMatrixPath)
             else:
                 routing_table_mode_node.set('value', 'false')
+            R_NoC_mode_node = ET.SubElement(node, 'R_NoC_mode')
+            if self.config.R_NoC_mode == '1':
+                R_NoC_mode_node.set('value', 'true')
+                routing_table_path_node = ET.SubElement(node, 'routingTable_path')
+                routing_table_path_node.set('value', self.config.RoutingTablePath)
+                routing_table_path_node = ET.SubElement(node, 'directionMatrix_path')
+                routing_table_path_node.set('value', self.config.DirectionMatrixPath)
+            else:
+                R_NoC_mode_node.set('value', 'false')
         send_head_flit_node.set('value', 'false')
 
     def write_netrace_verbose(self, verbose_node):

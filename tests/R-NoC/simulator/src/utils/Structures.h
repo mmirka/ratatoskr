@@ -271,10 +271,16 @@ public:
     Node* getNodeByPos(const Vec3D<float>& pos);
 
     void checkValid();
+    // my functions
+    void setDestIdOfDir(DIR::TYPE dir, int connectedNodeID);
+    
+    int getDestIdOfDir(DIR::TYPE dir);
 
 private:
     std::map<DIR::TYPE, int> conPosOfDir; //maps direction names to connection position inside this node's connections
     std::map<int, DIR::TYPE> dirOfConPos; //maps connection position (inside this node's connections) to direction name
+    std::map<DIR::TYPE, int> destIDOfDir; //maps direction names to connection position inside this node's connections
+    
 };
 
 struct Connection {

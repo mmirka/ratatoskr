@@ -1,12 +1,12 @@
 <?xml version="1.0" ?>
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <general>
-    <simulationTime value="10001"/>
+    <simulationTime value="5001"/>
     <outputToFile value="true">report</outputToFile>
   </general>
   <noc>
     <nocFile>config/network.xml</nocFile>
-    <flitsPerPacket value="32"/>
+    <flitsPerPacket value="10"/>
     <Vdd value="5"/>
   </noc>
   <application>
@@ -25,10 +25,10 @@
       <phase name="run">
         <distribution value="uniform"/>
         <start min="1" max="1"/>
-        <duration min="10001" max="10001"/>
+        <duration min="4001" max="4001"/>
         <repeat min="-1" max="-1"/>
         <delay min="0" max="0"/>
-        <injectionRate value="0.0031"/>
+        <injectionRate value="0.01"/>
         <count min="1" max="1"/>
         <hotspot value="0"/>
       </phase>
@@ -44,24 +44,26 @@
     <processingElements>
       <function_calls value="false"/>
       <send_flit value="false"/>
-      <send_head_flit value="false"/>
+      <send_head_flit value="true"/>
       <receive_flit value="false"/>
-      <receive_tail_flit value="false"/>
+      <receive_tail_flit value="true"/>
       <throttle value="false"/>
       <reset value="false"/>
     </processingElements>
     <router>
       <function_calls value="false"/>
       <send_flit value="false"/>
-      <send_head_flit value="false"/>
+      <send_head_flit value="true"/>
       <receive_flit value="false"/>
-      <receive_tail_flit value="false"/>
+      <receive_tail_flit value="true"/>
       <throttle value="false"/>
       <reset value="false"/>
       <assign_channel value="false"/>
       <buffer_overflow value="true"/>
-      <routingTable_mode value="true"/>
+      <routingTable_mode value="false"/>
+      <R_NoC_mode value="true"/>
       <routingTable_path value="/home/mmirka/ratatoskr/tests/R-NoC/RT.txt"/>
+      <directionMatrix_path value="/home/mmirka/ratatoskr/tests/R-NoC/Direction_Mat.txt"/>
     </router>
     <netrace>
       <inject value="true"/>

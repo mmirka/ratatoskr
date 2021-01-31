@@ -96,6 +96,7 @@ void NetworkInterfaceVC::generateFlitsForPacket(Packet* p)
         Flit* current_flit = new Flit(flitType, seqNum, p, p->dataType, sc_time_stamp().to_double());
         p->toTransmit.push_back(current_flit->id);
         p->flits.push_back(current_flit);
+        ++globalReport.sentFlits;
     }
 }
 

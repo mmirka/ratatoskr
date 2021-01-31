@@ -98,6 +98,7 @@ void GlobalReport::reportPerformance(ostream& stream)
     float avgFlitLat = latencyFlit.average()/(float) 1000;
     float avgPacketLat = latencyPacket.average()/(float) 1000;
     float avgNetworkLat = latencyNetwork.average()/(float) 1000;
+    long int nbFlitReceived = latencyFlit.samplesize();
     if (undeliveredPackages < globalResources.nodes.size()||undeliveredPackages<0)
         undeliveredPackages = 0;
     float undeliveredPacketsLatency = undeliveredPackages * globalResources.simulation_time;
@@ -106,6 +107,9 @@ void GlobalReport::reportPerformance(ostream& stream)
     stream << boost::format("Average flit latency: %3.2f ns.\n")%avgFlitLat;
     stream << boost::format("Average packet latency: %3.2f ns.\n")%avgPacketLat;
     stream << boost::format("Average network latency: %3.2f ns.\n")%actualNetworkLat;
+    stream << boost::format("Number of flits received: %li .\n")%nbFlitReceived;
+    stream << boost::format("Number of flits dropped: %d .\n")%droppedCounter;
+    stream << boost::format("Number of flits sent: %d .\n")%sentFlits;
 }
 
 void GlobalReport::reportPerformanceCSV(ostream& stream)
@@ -113,6 +117,7 @@ void GlobalReport::reportPerformanceCSV(ostream& stream)
     float avgFlitLat = latencyFlit.average()/(float) 1000;
     float avgPacketLat = latencyPacket.average()/(float) 1000;
     float avgNetworkLat = latencyNetwork.average()/(float) 1000;
+    long int nbFlitReceived = latencyFlit.samplesize();
     if (undeliveredPackages < globalResources.nodes.size() || undeliveredPackages < 0)
         undeliveredPackages = 0;
     float undeliveredPacketsLatency = undeliveredPackages * globalResources.simulation_time;
@@ -120,6 +125,9 @@ void GlobalReport::reportPerformanceCSV(ostream& stream)
     stream << boost::format("avgFlitLat, %2.3f\n")%avgFlitLat;
     stream << boost::format("avgPacketLat, %2.3f\n")%avgPacketLat;
     stream << boost::format("avgNetworkLat, %2.3f\n")%actualNetworkLat;
+    stream << boost::format("Number of flits received: %li .\n")%nbFlitReceived;
+    stream << boost::format("Number of flits dropped: %d .\n")%droppedCounter;
+    stream << boost::format("Number of flits sent: %d .\n")%sentFlits;
 }
 
 void GlobalReport::issueRoutingCalculation(int id)

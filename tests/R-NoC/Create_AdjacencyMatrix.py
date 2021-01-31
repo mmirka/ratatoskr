@@ -48,7 +48,12 @@ from math import pi
 ###### Fonctions Adjacency Matrices (AMs)
 class AdjMat_Creator():
     def __init__(self):
-        self.nbLanes = 2
+        self.nbLanes = 4
+        self.nbPrimaryLanes = 2
+        self.nbPrimaryLanes = 2
+        self.inputLane0 = {"L":2, "W":1}
+        self.inputLane1 = {"8":2, "S":6, "E":7}
+        self.endLaneLink = {5:11, 7:18, 15:-1, 17:-1}
         self.nbPorts = 5
         self.NoC_x = 2
         self.NoC_y = 2
@@ -56,22 +61,32 @@ class AdjMat_Creator():
         self.nbRouters_Roundabout = (self.nbLanes + 1) * self.nbPorts + 1
         self.nbRouters_R_NoC = self.nbRouters_NoC * self.nbRouters_Roundabout
         self.in_local = 2 #input router from local processing element i.e. injection input. WARNING: id=0 is for the local router, connected to the processing element, not the roundabout start.   
+        
     ## Roundabout router AM
     def Roundabout_AM(self):
         # mat[src, dest]
         mat = np.zeros((self.nbRouters_Roundabout, self.nbRouters_Roundabout))
-        # local I/O:
+        # Local I/O: 
         mat[0, self.in_local] = 1
-        mat[self.nbLanes*self.nbPorts+self.nbLanes, 0] = 1
+        mat[self.nbLanes*self.nbPorts+1, 0] = 1
         # the lanes:
         for i in range(self.nbLanes):
             for j in range(self.nbPorts):
                 idx_src = j + i*self.nbPorts + 1
-                
-                idx_dest_out = (self.nbLanes*self.nbPorts + (idx_src%self.nbPorts) + 1)%(self.nbRouters_Roundabout)
-                idx_dest_next = (idx_src + 1)%(self.nbRouters_Roundabout)
-                
-                mat[idx_src, idx_dest_next] = 2    # lower priority
+                if idx_src%self.nbPorts == 0:
+                    idx_dest_out = (self.nbLanes+1)*self.nbPorts
+                else:
+                    idx_dest_out = self.nbLanes*self.nbPorts + (idx_src%self.nbPorts)
+                    
+                if idx_src in self.endLaneLink:
+                    idx_dest_next = self.endLaneLink[idx_src]
+                else:
+                    if idx_src%self.nbPorts == 0:
+                        idx_dest_next = idx_src - 4 
+                    else:
+                        idx_dest_next = idx_src + 1
+                if idx_dest_next != -1:
+                    mat[idx_src, idx_dest_next] = 2    # lower priority
                 mat[idx_src, idx_dest_out] = 1   # higher priority --> if next == out : higher priority
         # the rest
         return mat
@@ -105,23 +120,23 @@ class AdjMat_Creator():
                 if NoC_mat[i,j] == 1: # connections between roundabout
                     # determine if it is a N/S connection, S/N connection, E/W connection or W/E connection i.e. mesh
                     if j == i+1: # E/W connection
-                        id_src = i*self.nbRouters_Roundabout + 14 
+                        id_src = i*self.nbRouters_Roundabout + 23 
                         id_dest = j*self.nbRouters_Roundabout + 1
                         mat[id_src, id_dest] = 1    
                 
                     elif j == i-1: # W/E connection
-                        id_src = i*self.nbRouters_Roundabout + 11 
-                        id_dest = j*self.nbRouters_Roundabout + 4
+                        id_src = i*self.nbRouters_Roundabout + 25 
+                        id_dest = j*self.nbRouters_Roundabout + 9
                         mat[id_src, id_dest] = 1
                     
                     elif j == i+self.NoC_x: # N/S connection
-                        id_src = i*self.nbRouters_Roundabout + 15 
-                        id_dest = j*self.nbRouters_Roundabout + 3
+                        id_src = i*self.nbRouters_Roundabout + 24 
+                        id_dest = j*self.nbRouters_Roundabout + 8
                         mat[id_src, id_dest] = 1
                     
                     elif j == i-self.NoC_x: # S/N connection
-                        id_src = i*self.nbRouters_Roundabout + 13 
-                        id_dest = j*self.nbRouters_Roundabout + 5
+                        id_src = i*self.nbRouters_Roundabout + 22 
+                        id_dest = j*self.nbRouters_Roundabout + 10
                         mat[id_src, id_dest] = 1
                     else:
                         print("Error connection")
@@ -142,10 +157,10 @@ def main():
     print(NoC_mat)
     
     R_NoC_mat = AM.R_NoC_AM()
-    #print(R_NoC_mat)
-    print(R_NoC_mat[16,18])
-    print(R_NoC_mat[34,35])
-    print(R_NoC_mat[34,45])
+    print(R_NoC_mat)
+    #print(R_NoC_mat[16,18])
+    #print(R_NoC_mat[34,35])
+    #print(R_NoC_mat[34,45])
 ###############################################################################
 
 

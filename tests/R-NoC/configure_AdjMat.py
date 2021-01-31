@@ -42,6 +42,7 @@ class Configuration:
         self.benchmark = config['Config']['benchmark']
         self.libDir = config['Config']['libDir']
         self.RoutingTableMode = config['Config']['RoutingTable_mode']
+        self.R_NoC_mode = config['Config']['R_NoC_mode']
         #print(type(self.RoutingTableMode))
         self.RoutingTablePath = config['Config']['RoutingTable']
         self.DirectionMatrixPath = config['Config']['DirectionMatrix']

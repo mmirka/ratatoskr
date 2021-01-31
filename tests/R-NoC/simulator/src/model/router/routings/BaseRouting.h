@@ -29,5 +29,5 @@ public:
 
     GlobalResources& globalResources = GlobalResources::getInstance();
 
-    virtual int route(int src_node_id, int dst_node_id) = 0; // calculate a route and returns the connection's position
+    virtual int route_credit(int src_node_id, int dst_node_id, std::map<Channel, int> creditCounter) = 0; // calculate a route and returns the connection's position
 };
