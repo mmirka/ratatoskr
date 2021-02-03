@@ -115,7 +115,7 @@ void RouterVC::thread()
     LOG(globalReport.verbose_router_function_calls,
             "Router" << this->id << "in tread() @ " << sc_time_stamp());
     if (clk.posedge()) {
-
+    
         globalReport.increaseClockCount(node.layer);
 
         send();
@@ -178,6 +178,7 @@ void RouterVC::receive()
             }
         }
     }
+    //thread(); //MMirka
 }
 
 // VC and buffer usage statistics
@@ -454,6 +455,7 @@ void RouterVC::receiveFlowControlCredit()
             }
         }
     }
+    //thread(); //MMirka
 }
 
 int RouterVC::VCAllocation_getNextVCToBeAllocated(int in)

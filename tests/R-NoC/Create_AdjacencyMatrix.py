@@ -48,12 +48,15 @@ from math import pi
 ###### Fonctions Adjacency Matrices (AMs)
 class AdjMat_Creator():
     def __init__(self):
-        self.nbLanes = 4
-        self.nbPrimaryLanes = 2
-        self.nbPrimaryLanes = 2
+        self.nbLanes = 5
+        self.nbPrimaryLanes = 3
+        self.nbSecondaryLanes = 2
         self.inputLane0 = {"L":2, "W":1}
-        self.inputLane1 = {"8":2, "S":6, "E":7}
-        self.endLaneLink = {5:11, 7:18, 15:-1, 17:-1}
+        self.inputLane1 = {"S":8, "E":9}
+        self.inputLane2 = {"N":14}
+        self.endLaneLink = {5:16, 7:23, 13:-1, 20:-1, 22:-1}
+        self.switchs = {-1:-1}
+        self.intermediairesBuf = {-1:-1}
         self.nbPorts = 5
         self.NoC_x = 2
         self.NoC_y = 2
@@ -71,20 +74,35 @@ class AdjMat_Creator():
         mat[self.nbLanes*self.nbPorts+1, 0] = 1
         # the lanes:
         for i in range(self.nbLanes):
-            for j in range(self.nbPorts):
-                idx_src = j + i*self.nbPorts + 1
-                if idx_src%self.nbPorts == 0:
-                    idx_dest_out = (self.nbLanes+1)*self.nbPorts
+            for j in range(self.nbPorts): # not include output lane (no next / no out)
+                idx_src = j + i*self.nbPorts +1
+                
+                # 1. compute output
+                if idx_src == self.nbLanes*self.nbPorts+1:
+                    idx_dest_out = 0
                 else:
-                    idx_dest_out = self.nbLanes*self.nbPorts + (idx_src%self.nbPorts)
-                    
+                    bias = idx_src%self.nbPorts
+                    if bias == 0: 
+                        bias = self.nbPorts
+                    idx_dest_out = self.nbLanes*self.nbPorts + bias
+                
+                # 2. compute switches
+                ####
+                #### pas implemente pour l'instant
+                ####
+                   
+                # 3. compute next 
                 if idx_src in self.endLaneLink:
                     idx_dest_next = self.endLaneLink[idx_src]
                 else:
-                    if idx_src%self.nbPorts == 0:
-                        idx_dest_next = idx_src - 4 
+                    if idx_src == 0:
+                        idx_dest_next = self.inputLane0["L"]
+                    elif idx_src%self.nbPorts == 0:
+                        idx_dest_next = idx_src - self.nbPorts + 1 
                     else:
                         idx_dest_next = idx_src + 1
+                        
+                ## update mat        
                 if idx_dest_next != -1:
                     mat[idx_src, idx_dest_next] = 2    # lower priority
                 mat[idx_src, idx_dest_out] = 1   # higher priority --> if next == out : higher priority
@@ -120,29 +138,28 @@ class AdjMat_Creator():
                 if NoC_mat[i,j] == 1: # connections between roundabout
                     # determine if it is a N/S connection, S/N connection, E/W connection or W/E connection i.e. mesh
                     if j == i+1: # E/W connection
-                        id_src = i*self.nbRouters_Roundabout + 23 
-                        id_dest = j*self.nbRouters_Roundabout + 1
+                        id_src = i*self.nbRouters_Roundabout + self.nbLanes*self.nbPorts + 3 
+                        id_dest = j*self.nbRouters_Roundabout + self.inputLane0["W"]
                         mat[id_src, id_dest] = 1    
                 
                     elif j == i-1: # W/E connection
-                        id_src = i*self.nbRouters_Roundabout + 25 
-                        id_dest = j*self.nbRouters_Roundabout + 9
+                        id_src = i*self.nbRouters_Roundabout + self.nbLanes*self.nbPorts + 5 
+                        id_dest = j*self.nbRouters_Roundabout + self.inputLane1["E"]
                         mat[id_src, id_dest] = 1
                     
                     elif j == i+self.NoC_x: # N/S connection
-                        id_src = i*self.nbRouters_Roundabout + 24 
-                        id_dest = j*self.nbRouters_Roundabout + 8
+                        id_src = i*self.nbRouters_Roundabout + self.nbLanes*self.nbPorts + 4 
+                        id_dest = j*self.nbRouters_Roundabout + self.inputLane1["S"]
                         mat[id_src, id_dest] = 1
                     
                     elif j == i-self.NoC_x: # S/N connection
-                        id_src = i*self.nbRouters_Roundabout + 22 
-                        id_dest = j*self.nbRouters_Roundabout + 10
+                        id_src = i*self.nbRouters_Roundabout + self.nbLanes*self.nbPorts + 2 
+                        id_dest = j*self.nbRouters_Roundabout + self.inputLane2["N"]
                         mat[id_src, id_dest] = 1
                     else:
                         print("Error connection")
 
         return mat
-
 
 
 def main():
@@ -153,11 +170,11 @@ def main():
     R_mat = AM.Roundabout_AM()
     print(R_mat)
     
-    NoC_mat = AM.NoC_AM()
-    print(NoC_mat)
+    #NoC_mat = AM.NoC_AM()
+    #print(NoC_mat)
     
-    R_NoC_mat = AM.R_NoC_AM()
-    print(R_NoC_mat)
+    #R_NoC_mat = AM.R_NoC_AM()
+    #print(R_NoC_mat)
     #print(R_NoC_mat[16,18])
     #print(R_NoC_mat[34,35])
     #print(R_NoC_mat[34,45])

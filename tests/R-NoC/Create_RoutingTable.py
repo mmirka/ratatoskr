@@ -36,13 +36,13 @@ from math import pi
 ### Global variables
 
 # roundabout info
-nbLanes = 4
-nbPrimaryLanes = 2
-nbPrimaryLanes = 2
+nbLanes = 5
+nbPrimaryLanes = 3
+nbSecondaryLanes = 2
 inputLane0 = {"L":2, "W":1}
-inputLane1 = {"8":2, "S":6, "E":7}
-nextLaneTransition = [5, 7]
-endLaneTransition = [5, 7, 15, 17]
+inputLane1 = {"S":8, "E":9}
+inputLane2 = {"N":14}
+endLaneLink = {5:16, 7:23, 13:-1, 20:-1, 22:-1}
 nbPorts = 5
 NoC_x = 2
 NoC_y = 2
@@ -50,7 +50,6 @@ nbRouters_NoC = NoC_x * NoC_y # mesh
 nbRouters_Roundabout = (nbLanes + 1) * nbPorts + 1
 nbRouters_R_NoC = nbRouters_NoC * nbRouters_Roundabout
 in_local = 2
-
 
 """
 graph = {'A': set(['B', 'C', 'D', 'E']),
@@ -518,8 +517,8 @@ def RoutingTable(dir_mat):
                 if roundabout_RT[src,i,0] > -1: # if I have an outing connexion --> it's the only choice
                     roundabout_RT[src,i,1] = -1 # no other option
                     roundabout_RT[src,i,2] = -1 # no other option
-                elif src > 11:
-                    step = src - 11
+                elif src > 16:
+                    step = src - 16
                     for i in range(step):
                         roundabout_RT[src,i,0] = -1 # no other option                        
                         roundabout_RT[src,i,1] = -1 # no other option
@@ -539,18 +538,18 @@ def RoutingTable(dir_mat):
                 #elif (i>0) and (i<((src%nbPorts))): #>0 because all router can join the last roundabout router.
                 #        roundabout_RT[src,i,1] = -1 # no other option
                 #        roundabout_RT[src,i,2] = -1 # no other option
-                elif src > 18:
-                    step = src - 18
+                elif src > 23:
+                    step = src - 23
                     for j in range(2,step+2):
                         roundabout_RT[src,j,0] = -1 # no other option                        
                         roundabout_RT[src,j,1] = -1 # no other option
                         roundabout_RT[src,j,2] = -1 # no other option   
-                elif src == 17:
+                elif src == 22:
                     if i != 1:
                         roundabout_RT[src,i,0] = -1 # no other option                        
                         roundabout_RT[src,i,1] = -1 # no other option
                         roundabout_RT[src,i,2] = -1 # no other option 
-                elif src == 16:
+                elif src == 21:
                     if i != 1 and i != 0:
                         roundabout_RT[src,i,0] = -1 # no other option                        
                         roundabout_RT[src,i,1] = -1 # no other option

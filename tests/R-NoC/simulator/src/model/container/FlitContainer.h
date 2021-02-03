@@ -28,11 +28,11 @@
 
 class FlitSignalContainer : public SignalContainer {
 public:
-    sc_signal<bool> sigValid;
-    sc_signal<bool> sigFlowControlValid;
-    sc_signal<Credit> sigFlowControl;
-    sc_signal<Flit*> sigData;
-    sc_signal<int> sigVc;
+    sc_signal<bool, SC_MANY_WRITERS> sigValid;      // ajouter ", SC_MANY_WRITERS"  MMirka
+    sc_signal<bool, SC_MANY_WRITERS> sigFlowControlValid;
+    sc_signal<Credit, SC_MANY_WRITERS> sigFlowControl;
+    sc_signal<Flit*, SC_MANY_WRITERS> sigData;
+    sc_signal<int, SC_MANY_WRITERS> sigVc;
 
     explicit FlitSignalContainer(const sc_module_name& nm)
             :

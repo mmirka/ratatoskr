@@ -34,6 +34,7 @@ Link::Link(sc_module_name nm, const Connection& c, int globalID)
     // this->rawDataOutput = new ofstream((std::string) nm + ".txt");
     SC_THREAD(passthrough_thread);
     sensitive << clk.pos();
+    
 }
 
 Link::~Link()

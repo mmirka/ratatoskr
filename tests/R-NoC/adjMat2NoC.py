@@ -63,13 +63,15 @@ class Archi:
 
         self.links=[]
 
-        self.nbLanes = 4
-        self.nbPrimaryLanes = 2
-        self.nbPrimaryLanes = 2
+        self.nbLanes = 5
+        self.nbPrimaryLanes = 3
+        self.nbSecondaryLanes = 2
         self.inputLane0 = {"L":2, "W":1}
-        self.inputLane1 = {"8":2, "S":6, "E":7}
-        self.nextLaneTransition = [5, 7]
-        self.endLaneTransition = [5, 7, 15, 17]
+        self.inputLane1 = {"S":8, "E":9}
+        self.inputLane2 = {"N":14}
+        self.endLaneLink = {5:16, 7:23, 13:-1, 15:-1, 17:-1}
+        self.switchs = {-1:-1}
+        self.intermediairesBuf = {-1:-1}
         self.nbPorts = 5
         self.NoC_x = 2
         self.NoC_y = 2
@@ -270,10 +272,10 @@ class Archi:
                     angle_r = angle_local
                 else:
                     print("other output")
-                    if inR_id%5 == 0:
+                    if inR_id%self.nbPorts == 0:
                         angle_r = math.pi
                     else:
-                        angle_r = -angle_step + angle_step*(inR_id%5 - 2)
+                        angle_r = -angle_step + angle_step*(inR_id%self.nbPorts - 2)
         
                 if id_lane == self.nbLanes:
                     angle_r += math.pi/16
