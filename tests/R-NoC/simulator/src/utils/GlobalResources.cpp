@@ -363,10 +363,12 @@ void GlobalResources::readNoCLayout(const std::string& nocPath)
     readNodes(noc_node);
     readConnections(noc_node);
     if (!RoutingTable_mode && !R_NoC_mode){
-        fillDirInfoOfNodeConn();
+        //fillDirInfoOfNodeConn();
+        std::cout<<"bad fill dir function \n";
     }
     else{
-        fillDirInfoOfNodeConn_DM();
+        //fillDirInfoOfNodeConn_DM();
+        fillDirInfoOfNodeConn_RNoC();
     }
 }
 
@@ -400,6 +402,27 @@ void GlobalResources::readNodes(const pugi::xml_node& noc_node)
         std::shared_ptr<NodeType> nodeType = nodeTypes.at(nodeTypeID);
         int layer = xmlnode.child("layer").attribute("value").as_int();
         nodes.emplace_back(nodeID, Vec3D<float>(x, y, z), nodeType, layer);
+        // MMirka --> here, assign RNoC module parameters: type and outputs reachable
+        std::string moduleType = xmlnode.child("moduleType").attribute("value").as_string();
+        std::string outputs_str = xmlnode.child("Outputs").attribute("value").as_string();
+        std::cout << outputs_str << endl;
+        
+        
+        std::vector<std::string> Outputs;
+        size_t pos = 0;
+        std::string delimiter = ",";
+        std::string token;
+        while ((pos = outputs_str.find(delimiter)) != std::string::npos) {
+            token = outputs_str.substr(0, pos);
+            std::cout << token << std::endl;
+            Outputs.push_back(token);
+            outputs_str.erase(0, pos + delimiter.length());
+        }
+        std::cout << outputs_str << std::endl;
+        Outputs.push_back(outputs_str);
+        nodes[nodeID].RNoC_moduleType = moduleType; // MMirka
+        nodes[nodeID].Outputs = Outputs; // MMirka
+        nodes[nodeID].lane = xmlnode.child("lane").attribute("value").as_int();
     }
     sortNodesPositions();
 }
@@ -415,7 +438,7 @@ void GlobalResources::sortNodesPositions()
     sort(zPositions.begin(), zPositions.end());
     zPositions.erase(unique(zPositions.begin(), zPositions.end()), zPositions.end());
 }
-
+/*
 void GlobalResources::fillDirInfoOfNodeConn()
 {
     for (Node& node : nodes) {
@@ -455,9 +478,52 @@ void GlobalResources::fillDirInfoOfNodeConn()
     }
 }
 
+*/
+
+void GlobalResources::fillDirInfoOfNodeConn_RNoC()
+{
+
+    std::cout << "RNoC _ Start filling direction of nodes " << std::endl;
+    int nbNode = nodes.size()/2;
+    for (Node& node : nodes) {
+        std::cout << "Src = " << node.id<< std::endl;
+        //check for common directions
+        Vec3D<float> distance{};
+        for (int connectedNodeID : node.connectedNodes) {
+            int conNodeID = connectedNodeID%nbNode;
+            int srcNodeID = node.id%nbNode;
+            std::cout << "__Dst = " << connectedNodeID<< std::endl;
+            Node connectedNode = nodes.at(connectedNodeID);
+            distance = node.pos-connectedNode.pos;
+            connID_t matching_conn = node.getConnWithNode(connectedNode);
+            DIR::TYPE dir{};
+            if (distance.isZero()) { //no axis differs
+                dir = DIR::Local;
+            }
+            else { //check lanes
+                if (connectedNode.lane==node.lane){
+                    if (conNodeID>srcNodeID)
+                        dir = DIR::Keep;
+                    else dir = DIR::toDir(3+node.lane);
+                }
+                else if (connectedNode.lane>node.lane) { // out = 1
+                    if(connectedNode.RNoC_moduleType == "Mux")
+                        dir = DIR::Out;
+                    else dir = DIR::Keep;
+                }
+                else if (connectedNode.lane<node.lane) { // in >= 3
+                    dir = DIR::toDir(3+connectedNode.lane);
+                }
+            }
+            std::cout << "___dir = " << dir<< std::endl;
+            node.setConPosOfDir(dir, matching_conn);
+            node.setDirOfConn(matching_conn, dir);
+        }
+    }
+}
 
 // My fillDirInfoOfNodeConn() function. Rely on Direction_Mat.txt file
-
+/*
 void GlobalResources::fillDirInfoOfNodeConn_DM()
 {
     std::cout << "Start filling direction of nodes \n";
@@ -545,7 +611,7 @@ void GlobalResources::fillDirInfoOfNodeConn_DM()
     }
 
 }
-
+*/
 void GlobalResources::readConnections(const pugi::xml_node& noc_node)
 {
     for (pugi::xml_node xml_con : noc_node.child("connections").children("con")) {

@@ -6,7 +6,7 @@
   </general>
   <noc>
     <nocFile>config/network.xml</nocFile>
-    <flitsPerPacket value="10"/>
+    <flitsPerPacket value="32"/>
     <Vdd value="5"/>
   </noc>
   <application>
@@ -25,10 +25,10 @@
       <phase name="run">
         <distribution value="uniform"/>
         <start min="1" max="1"/>
-        <duration min="10001" max="10001"/>
+        <duration min="100001" max="100001"/>
         <repeat min="-1" max="-1"/>
         <delay min="0" max="0"/>
-        <injectionRate value="0.001"/>
+        <injectionRate value="0.0031"/>
         <count min="1" max="1"/>
         <hotspot value="0"/>
       </phase>
@@ -44,18 +44,18 @@
     <processingElements>
       <function_calls value="false"/>
       <send_flit value="false"/>
-      <send_head_flit value="true"/>
+      <send_head_flit value="false"/>
       <receive_flit value="false"/>
-      <receive_tail_flit value="true"/>
+      <receive_tail_flit value="false"/>
       <throttle value="false"/>
       <reset value="false"/>
     </processingElements>
     <router>
       <function_calls value="false"/>
       <send_flit value="false"/>
-      <send_head_flit value="true"/>
+      <send_head_flit value="false"/>
       <receive_flit value="false"/>
-      <receive_tail_flit value="true"/>
+      <receive_tail_flit value="false"/>
       <throttle value="false"/>
       <reset value="false"/>
       <assign_channel value="false"/>

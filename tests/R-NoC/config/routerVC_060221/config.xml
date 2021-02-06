@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <general>
-    <simulationTime value="10001"/>
+    <simulationTime value="15000"/>
     <outputToFile value="true">report</outputToFile>
   </general>
   <noc>
@@ -25,10 +25,10 @@
       <phase name="run">
         <distribution value="uniform"/>
         <start min="1" max="1"/>
-        <duration min="10001" max="10001"/>
+        <duration min="4001" max="4001"/>
         <repeat min="-1" max="-1"/>
         <delay min="0" max="0"/>
-        <injectionRate value="0.001"/>
+        <injectionRate value="0.01"/>
         <count min="1" max="1"/>
         <hotspot value="0"/>
       </phase>

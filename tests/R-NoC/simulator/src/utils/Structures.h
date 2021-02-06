@@ -40,6 +40,82 @@ using taskID_t = int;
 using synthID_t = int;
 
 struct DIR {
+    const static int size = 13;
+
+    enum TYPE {
+        Local = 0, Out = 1, Keep = 2, In1 = 3, In2 = 4, In3 = 5, In4 = 6, In5=7, In6=8, In7=9, In8=10, In9=11, In10=12
+    };
+
+    static const std::vector<TYPE> XYZ;
+
+    static TYPE toDir(int a)
+    {
+        return static_cast<TYPE>(a);
+    }
+
+    static std::string toString(TYPE a)
+    {
+        switch (a) {
+        case Local:
+            return "Local";
+        case Out:
+            return "  Out";
+        case Keep:
+            return " Keep";
+        case In1:
+            return "  In1";
+        case In2:
+            return "  In2";
+        case In3:
+            return "  In3";
+        case In4:
+            return "  In4";
+        case In5:
+            return "  In5";
+        case In6:
+            return "  In6";
+        case In7:
+            return "  In7";
+        case In8:
+            return "  In8";
+        case In9:
+            return "  In9";
+        case In10:
+            return "  In10";
+        default:
+            return "Unknown Direction!!!";
+        }
+    }
+
+    static std::string toString(int a)
+    {
+        return toString(toDir(a));
+    }
+
+    static int getOppositeDir(int d)
+    {
+        switch (d) {
+        case 0:
+            return 0;
+        case 1:
+            return 2;
+        case 2:
+            return 1;
+        case 3:
+            return 4;
+        case 4:
+            return 3;
+        case 5:
+            return 6;
+        case 6:
+            return 5;
+        default:
+            return 0;
+        }
+    }
+};
+/* // Original struct
+struct DIR {
     const static int size = 7;
 
     enum TYPE {
@@ -102,6 +178,7 @@ struct DIR {
         }
     }
 };
+*/
 
 struct Channel {
     int conPos;
@@ -242,6 +319,9 @@ public:
     std::vector<nodeID_t> connectedNodes;
     std::vector<connID_t> connections;
     int layer;
+    std::string RNoC_moduleType; // MMirka
+    std::vector<std::string> Outputs; // MMirka
+    int lane; //MMirka
 
     /* int idType; TODO restructure
      LayerType* layer;

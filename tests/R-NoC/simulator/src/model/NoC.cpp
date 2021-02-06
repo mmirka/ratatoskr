@@ -101,6 +101,11 @@ void NoC::createNetworkParticipants() {
             packetSignalContainers.push_back(move(sig1));
             packetSignalContainers.push_back(move(sig2));
             tp->processingElements.at(n.id % numOfPEs) = pe;
+        } else if (n.type->model == "RNoC_Module") {    // MMirka --> Here, add a condition if model == RNoC_Module, and create with correct parameters
+            std::string name = "router_" + std::to_string(n.id);
+            RNoC_Module *r = new RNoC_Module(name.c_str(), n);
+            r->clk(*clocks.at(n.type->id));
+            networkParticipants.at(n.id) = dynamic_cast<NetworkParticipant *>(r);
         }
     }
     
@@ -290,7 +295,7 @@ void NoC::runNoC() {
     for (auto &r : networkParticipants) {
         r->initialize();
     }
-    std::cout << "########################### vector of creditCounter #########################"<<std::endl;
+    /*std::cout << "########################### vector of creditCounter #########################"<<std::endl;
     int cpt = 0;
     for(auto it : globalReport.ptr_creditCounters){
         for(auto elem = (*it).cbegin(); elem != (*it).cend(); ++elem){
@@ -298,7 +303,7 @@ void NoC::runNoC() {
             std::cout << elem->first << " " << elem->second << " " << "\n";
         }
         cpt ++;
-    }
+    }*/
     tp->start();
 }
 

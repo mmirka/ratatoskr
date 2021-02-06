@@ -78,8 +78,8 @@ public:
     bool R_NoC_mode;
     std::vector <std::vector<int> > RoutingTable;
     std::vector <std::vector <std::vector<int> > > RoutingTable_RNoC;
-    std::vector<int> ListOfSources{0,31,62,93};
-    std::vector<int> ListOfDestinations{0,31,62,93};
+    std::vector<int> ListOfSources{0,6,27,38,42};
+    std::vector<int> ListOfDestinations{64,65,66,67,68};
     std::string DirectionMat_file;
     // ___ R-NoC params
     int nbLanes = 5;
@@ -137,6 +137,8 @@ private:
     void fillDirInfoOfNodeConn();
     
     void fillDirInfoOfNodeConn_DM();
+    
+    void fillDirInfoOfNodeConn_RNoC();
 
     void readConnections(const pugi::xml_node& noc_node);
 

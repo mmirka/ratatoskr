@@ -21,7 +21,7 @@
  ******************************************************************************/
 #include "Structures.h"
 
-const std::vector<DIR::TYPE> DIR::XYZ = {DIR::Local, DIR::East, DIR::West, DIR::North, DIR::South, DIR::Up, DIR::Down};
+const std::vector<DIR::TYPE> DIR::XYZ = {DIR::Local, DIR::Out, DIR::Keep, DIR::In1, DIR::In2, DIR::In3, DIR::In4, DIR::In5, DIR::In6, DIR::In7, DIR::In8, DIR::In9, DIR::In10};
 
 Channel::Channel()
         :

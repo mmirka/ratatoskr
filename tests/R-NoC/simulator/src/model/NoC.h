@@ -46,6 +46,7 @@
 #include "container/Container.h"
 #include "router/Router.h"
 #include "model/router/RouterVC.h"
+#include "model/router/RNoC_Module.h"  // MMirka
 
 #include "link/Link.h"
 #include "networkInterface/NetworkInterfaceVC.h"
