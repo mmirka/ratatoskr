@@ -518,6 +518,7 @@ void GlobalResources::fillDirInfoOfNodeConn_RNoC()
             std::cout << "___dir = " << dir<< std::endl;
             node.setConPosOfDir(dir, matching_conn);
             node.setDirOfConn(matching_conn, dir);
+            node.setDestIdOfDir(dir, connectedNodeID);
         }
     }
 }

@@ -255,11 +255,11 @@ def RNoC_byHand():
     ## lane 3
     PathController2 = Module(15,"PathController", 3, 1)
     PathController2.Next.append(16)
-    PathController2.Output.append("South")
-    PathController2.Output.append("East")
-    PathController2.Output.append("North")
-    PathController2.Output.append("West")
-    PathController2.Output.append("Local")
+    #PathController2.Output.append("South")
+    #PathController2.Output.append("East")
+    #PathController2.Output.append("North")
+    #PathController2.Output.append("West")
+    #PathController2.Output.append("Local")
     RNoC.add_module(PathController2)
     
     Buffer6 = Module(16,"Buffer", 3, 4)

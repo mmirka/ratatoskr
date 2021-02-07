@@ -84,22 +84,50 @@ int RNoC_Table::route_credit(int src_node_id, int dst_node_id, std::map<Channel,
     }
     */
     
-    if (src == dst)
+    std::cout<<"Src type: "<<src_node.RNoC_moduleType<<std::endl;
+    
+    int dstID_out;
+    if (src == dst){
         con_pos = src_node.getConPosOfDir(DIR::Local);
+        std::cout<<"Src: "<<src<<", dir: Local"<<std::endl;
+    }
     else{
-        if (src_node.RNoC_moduleType == "Buffer" || (src_node.RNoC_moduleType == "Mux" || src_node.RNoC_moduleType == "InputController")){
+        if (src_node.RNoC_moduleType == "Buffer" || (src_node.RNoC_moduleType == "Mux" || src_node.RNoC_moduleType == "InputController")){ // only keep options
+            std::cout<<"Src: "<<src<<", dir: only keep option"<<std::endl;
             con_pos = src_node.getConPosOfDir(DIR::Keep);
         }
-        else {
-            if (std::count(src_node.Outputs.begin(), src_node.Outputs.end(), dir_dst))
-                con_pos = src_node.getConPosOfDir(DIR::Out);
-            else con_pos = src_node.getConPosOfDir(DIR::Keep);
+        else { // path controller or output controller --> keep or out options
+		if (std::count(src_node.Outputs.begin(), src_node.Outputs.end(), dir_dst)){ // if dst in out choices
+		    std::cout<<"Src: "<<src<<", dst reachable from out"<<std::endl;
+		    if (std::count(globalResources.ListOfSecondaryLanes.begin(), globalResources.ListOfSecondaryLanes.end(), src_node.lane)){ // if in secondary lane -> out is the only choice
+		        std::cout<<"Src: "<<src<<", in secondary lane -> out"<<std::endl;
+		        con_pos = src_node.getConPosOfDir(DIR::Out);
+		    }
+		    else{ // check if out module is available
+		        std::cout<<"Src: "<<src<<", check out available"<<std::endl;
+		        
+		        dstID_out = src_node.getDestIdOfDir(DIR::Out);
+		        
+		        
+		        std::cout<<"Src: "<<src<<", dst to check "<< dstID_out<<std::endl;
+		        if (!is_used(dstID_out)){
+		            con_pos = src_node.getConPosOfDir(DIR::Out);
+		        }
+		        else{
+		            con_pos = src_node.getConPosOfDir(DIR::Keep);
+		        }
+		    }
+		}
+		else{
+		    std::cout<<"Src: "<<src<<", dst not in choice -> keep"<<std::endl;
+		    con_pos = src_node.getConPosOfDir(DIR::Keep);
+		}
         }
         
     }
     
     
-    std::cout<<"Src type: "<<src_node.RNoC_moduleType<<std::endl;
+    
     std::cout<<"Src: "<<src<<", Dst: "<<dst<<", Connection: "<<con_pos<<std::endl;
 
     

@@ -80,6 +80,7 @@ public:
     std::vector <std::vector <std::vector<int> > > RoutingTable_RNoC;
     std::vector<int> ListOfSources{0,6,27,38,42};
     std::vector<int> ListOfDestinations{64,65,66,67,68};
+    std::vector<int> ListOfSecondaryLanes{1,3,4};
     std::string DirectionMat_file;
     // ___ R-NoC params
     int nbLanes = 5;

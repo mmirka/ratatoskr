@@ -189,7 +189,7 @@
       <zPos value="0"/>
       <moduleType value="PathController"/>
       <lane value="3"/>
-      <Outputs value="South,East,North,West,Local"/>
+      <Outputs value=""/>
       <nodeType value="0"/>
       <idType value="15"/>
       <layer value="0"/>
@@ -948,7 +948,7 @@
       <zPos value="0"/>
       <moduleType value="PathController"/>
       <lane value="3"/>
-      <Outputs value="South,East,North,West,Local"/>
+      <Outputs value=""/>
       <nodeType value="1"/>
       <idType value="15"/>
       <layer value="0"/>
