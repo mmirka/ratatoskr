@@ -889,7 +889,7 @@ class NetworkWriter_fromArchi(Writer): ### from Nodes Positions And Links
 class NetworkWriter_RNoC(Writer): ### from Nodes Positions And Links
     """ The Network writer class """
 
-    def __init__(self, config, Modules):
+    def __init__(self, config, Modules, localSRC, localDST, nbRNoC=1):
         Writer.__init__(self, 'network-on-chip')
         self.config = config
         if self.config.z == 1:
@@ -904,6 +904,10 @@ class NetworkWriter_RNoC(Writer): ### from Nodes Positions And Links
         #with open(filename, 'rb') as f:
         #    data = pickle.load(f)
         self.Modules = Modules
+        self.nb_RNoC = nbRNoC
+        self.localSRC = localSRC
+        self.localDST = localDST
+        self.nbmoduleperRNoC = len(Modules)/nbRNoC
         nodecount = len(self.Modules)
         self.positions = {}
         self.links = []
@@ -921,6 +925,18 @@ class NetworkWriter_RNoC(Writer): ### from Nodes Positions And Links
     def write_header(self):
         bufferDepthType_node = ET.SubElement(self.root_node, 'bufferDepthType')
         bufferDepthType_node.set('value', self.config.bufferDepthType)
+        stringSRC=""
+        stringDST=""
+        for i in range(self.nb_RNoC):
+            src = self.localSRC + i*self.nbmoduleperRNoC
+            stringSRC += str(int(src))+","
+            dst = self.localDST + i*self.nbmoduleperRNoC
+            stringDST += str(int(dst))+","
+        listSources_node = ET.SubElement(self.root_node, 'listSources')
+        listSources_node.set('value', stringSRC)
+        litsDestinations_node = ET.SubElement(self.root_node, 'litsDestinations')
+        litsDestinations_node.set('value', stringDST)
+        
 
     def write_layers(self):
         layers_node = ET.SubElement(self.root_node, 'layers')

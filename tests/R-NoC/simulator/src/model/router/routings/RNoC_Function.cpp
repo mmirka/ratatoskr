@@ -35,72 +35,70 @@ int RNoC_Table::route_credit(int src_node_id, int dst_node_id, std::map<Channel,
     int con_pos;
     
     std::string dir_dst;
-    if (dst == 64) dir_dst = "South";
+    /*if (dst == 64) dir_dst = "South";
     else if (dst == 65) dir_dst = "East";
     else if (dst == 66) dir_dst = "North";
     else if (dst == 67) dir_dst = "West";
     else if (dst == 68) dir_dst = "Local";
-    
-    /*FOR XY ROUTING WITH MESH, COMMENT IF TEST RNOC ONLY
+    */
+    //FOR XY ROUTING WITH MESH, COMMENT IF TEST RNOC ONLY
     // 1. get local IDs (src / dest)
-    int src_roundabout_ID = src % globalResources.nbRouters_Roundabout; 
-    int src_roundabout_ID_min = src - src_roundabout_ID; 
-    int src_roundabout_ID_max = src + (globalResources.nbRouters_Roundabout-src_roundabout_ID-1);
+    int src_roundabout_ID = src % globalResources.nbModules_RNoC; 
+    int src_RNoC = src / globalResources.nbModules_RNoC; 
     
-    int local_src = src_roundabout_ID_min;
+    int first_src = src_RNoC*globalResources.nbModules_RNoC;
     
-    int dst_roundabout_ID = dst_raw % globalResources.nbRouters_Roundabout; 
-    int dst_roundabout_ID_min = dst_raw - dst_roundabout_ID; 
-    int dst_roundabout_ID_max = dst_raw + (globalResources.nbRouters_Roundabout-dst_roundabout_ID-1);
+    int dst_roundabout_ID = dst % globalResources.nbModules_RNoC; 
+    int dst_RNoC = dst / globalResources.nbModules_RNoC;
     
-    int local_dst = dst_roundabout_ID_min;
+    int first_dst = dst_RNoC*globalResources.nbModules_RNoC;
     
-    Node local_src_node = globalResources.nodes.at(local_src);
-    Node local_dst_node = globalResources.nodes.at(local_dst);
-    Vec3D<float> src_pos = local_src_node.pos;
-    Vec3D<float> dst_pos = local_dst_node.pos;
-     
+    Node first_src_node = globalResources.nodes.at(first_src);
+    Node first_dst_node = globalResources.nodes.at(first_dst);
+    Vec3D<float> src_pos = first_src_node.pos;
+    Vec3D<float> dst_pos = first_dst_node.pos;
+    
     //2. check if it is the same roundabout, if yes, destination = local, else XY routing
-    if (local_src == local_dst) { // destination = local
-        column = 0; // column index in RT
+    int local_dst;
+    if (first_src == first_dst) { // destination = local
+        dir_dst = "Local"; // column index in RT
     }
     else{ // XY 
-        if (dst_pos.x<src_pos.x) {
+        if (dst_pos.x<src_pos.x) { // go West
             //std::cout << "dst_pos.x = " << dst_pos.x << " , src_pos.x = " << src_pos.x << " \n";
-            column = 4;
+            dir_dst = "West";
         }
-        else if (dst_pos.x>src_pos.x) {
+        else if (dst_pos.x>src_pos.x) { // go East
             //std::cout << "dst_pos.x = " << dst_pos.x << " , src_pos.x = " << src_pos.x << " \n";
-            column = 2;
+            dir_dst = "East";
         }
-        else if (dst_pos.y<src_pos.y) {
+        else if (dst_pos.y<src_pos.y) { // go South
             //std::cout << "dst_pos.x = " << dst_pos.x << " , src_pos.x = " << src_pos.x << " \n";
-            column = 1;
+            dir_dst = "South";
         }
-        else if (dst_pos.y>src_pos.y) {
+        else if (dst_pos.y>src_pos.y) { // go North
             //std::cout << "dst_pos.x = " << dst_pos.x << " , src_pos.x = " << src_pos.x << " \n";
-            column = 3;
+            dir_dst = "North";
         }
     }
-    */
-    
-    std::cout<<"Src type: "<<src_node.RNoC_moduleType<<std::endl;
+      
+    //std::cout<<"Src type: "<<src_node.RNoC_moduleType<<std::endl;
     
     int dstID_out;
     if (src == dst){
         con_pos = src_node.getConPosOfDir(DIR::Local);
-        std::cout<<"Src: "<<src<<", dir: Local"<<std::endl;
+        //std::cout<<"Src: "<<src<<", dir: Local"<<std::endl;
     }
     else{
         if (src_node.RNoC_moduleType == "Buffer" || (src_node.RNoC_moduleType == "Mux" || src_node.RNoC_moduleType == "InputController")){ // only keep options
-            std::cout<<"Src: "<<src<<", dir: only keep option"<<std::endl;
+            //std::cout<<"Src: "<<src<<", dir: only keep option"<<std::endl;
             con_pos = src_node.getConPosOfDir(DIR::Keep);
         }
         else { // path controller or output controller --> keep or out options
 		if (std::count(src_node.Outputs.begin(), src_node.Outputs.end(), dir_dst)){ // if dst in out choices
-		    std::cout<<"Src: "<<src<<", dst reachable from out"<<std::endl;
+		    //std::cout<<"Src: "<<src<<", dst reachable from out"<<std::endl;
 		    if (std::count(globalResources.ListOfSecondaryLanes.begin(), globalResources.ListOfSecondaryLanes.end(), src_node.lane)){ // if in secondary lane -> out is the only choice
-		        std::cout<<"Src: "<<src<<", in secondary lane -> out"<<std::endl;
+		        //std::cout<<"Src: "<<src<<", in secondary lane -> out"<<std::endl;
 		        con_pos = src_node.getConPosOfDir(DIR::Out);
 		    }
 		    else{ // check if out module is available
@@ -112,14 +110,16 @@ int RNoC_Table::route_credit(int src_node_id, int dst_node_id, std::map<Channel,
 		        std::cout<<"Src: "<<src<<", dst to check "<< dstID_out<<std::endl;
 		        if (!is_used(dstID_out)){
 		            con_pos = src_node.getConPosOfDir(DIR::Out);
+		            std::cout<< dstID_out <<" is NOT used"<<std::endl;
 		        }
 		        else{
 		            con_pos = src_node.getConPosOfDir(DIR::Keep);
+		            std::cout<< dstID_out <<" IS used"<<std::endl;
 		        }
 		    }
 		}
 		else{
-		    std::cout<<"Src: "<<src<<", dst not in choice -> keep"<<std::endl;
+		    //std::cout<<"Src: "<<src<<", dst not in choice -> keep"<<std::endl;
 		    con_pos = src_node.getConPosOfDir(DIR::Keep);
 		}
         }
@@ -128,7 +128,7 @@ int RNoC_Table::route_credit(int src_node_id, int dst_node_id, std::map<Channel,
     
     
     
-    std::cout<<"Src: "<<src<<", Dst: "<<dst<<", Connection: "<<con_pos<<std::endl;
+    //std::cout<<"Src: "<<src<<", Dst: "<<dst<<", Connection: "<<con_pos<<std::endl;
 
     
 
@@ -160,7 +160,7 @@ bool RNoC_Table::is_used(int dst_node_id)
 	    ptr_cC = globalReport.ptr_creditCounters[n_id];
 	    cC = *ptr_cC;
 	    //std::cout<<"Src "<<n_id<<", Dst "<<dst_node_id<<", Cc "<<cC.at(ch)<<std::endl;
-	    if (cC.count(ch) && cC.at(ch)<4){
+	    if (cC.count(ch) && cC.at(ch)<1){
 	        //std::cout<<"Src "<<n_id<<", Dst "<<dst_node_id<<", Cc "<<cC.at(ch)<<std::endl;
 	        //std::cout<<"Set check to true --> is_used"<<std::endl;
 	        check = true;

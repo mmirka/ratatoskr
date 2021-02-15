@@ -359,6 +359,37 @@ void GlobalResources::readNoCLayout(const std::string& nocPath)
         FATAL("The value of bufferDepthType in your network file should be either 'single' or 'perVC'!");
     }
 
+    // MMirka
+    std::string ListOfSources_str = noc_node.child("listSources").attribute("value").as_string();
+    std::string ListOfDestinations_str = noc_node.child("litsDestinations").attribute("value").as_string();
+    size_t pos = 0;
+    std::string delimiter = ",";
+    std::string token;
+    while ((pos = ListOfSources_str.find(delimiter)) != std::string::npos) {
+        token = ListOfSources_str.substr(0, pos);
+        std::cout << token << std::endl;
+        ListOfSources.push_back(std::stoi(token));
+        ListOfSources_str.erase(0, pos + delimiter.length());
+    }
+    std::cout << "end sources" << std::endl;
+    //std::cout << ListOfSources_str << std::endl;
+    //ListOfSources.push_back(std::stoi(ListOfSources_str));
+    size_t pos1 = 0;
+    std::string token1;
+    while ((pos1 = ListOfDestinations_str.find(delimiter)) != std::string::npos) {
+        token1 = ListOfDestinations_str.substr(0, pos1);
+        std::cout << token1 << std::endl;
+        ListOfDestinations.push_back(std::stoi(token1));
+        ListOfDestinations_str.erase(0, pos1 + delimiter.length());
+    }
+    //std::cout << ListOfDestinations_str << std::endl;
+    //ListOfDestinations.push_back(std::stoi(ListOfDestinations_str));
+ 
+    for(int i=0; i<4; i++){
+        std::cout << ListOfSources[i] << " , " << ListOfDestinations[i] << std::endl;
+    }
+    
+
     readNodeTypes(noc_node);
     readNodes(noc_node);
     readConnections(noc_node);
@@ -492,6 +523,11 @@ void GlobalResources::fillDirInfoOfNodeConn_RNoC()
         for (int connectedNodeID : node.connectedNodes) {
             int conNodeID = connectedNodeID%nbNode;
             int srcNodeID = node.id%nbNode;
+            
+            int srcRNoC = srcNodeID/nbModules_RNoC;
+            int conRNoC = conNodeID/nbModules_RNoC;
+            
+                        
             std::cout << "__Dst = " << connectedNodeID<< std::endl;
             Node connectedNode = nodes.at(connectedNodeID);
             distance = node.pos-connectedNode.pos;
@@ -500,19 +536,30 @@ void GlobalResources::fillDirInfoOfNodeConn_RNoC()
             if (distance.isZero()) { //no axis differs
                 dir = DIR::Local;
             }
-            else { //check lanes
-                if (connectedNode.lane==node.lane){
-                    if (conNodeID>srcNodeID)
+            else {
+                if(conRNoC == srcRNoC){ // same RNoC
+                    //check lanes
+                    if (connectedNode.lane==node.lane){
+                        if (conNodeID>srcNodeID)
+                            dir = DIR::Keep;
+                        else dir = DIR::toDir(3+node.lane);
+                    }
+                    else if (connectedNode.lane>node.lane) { // out = 1
+                        if(connectedNode.RNoC_moduleType == "Mux")
+                            dir = DIR::Out;
+                        else dir = DIR::Keep;
+                    }
+                    else if (connectedNode.lane<node.lane) { // in >= 3
+                        dir = DIR::toDir(3+connectedNode.lane);
+                    }
+                }
+                else{ // Not same RNoC
+                    if (node.lane > connectedNode.lane){
                         dir = DIR::Keep;
-                    else dir = DIR::toDir(3+node.lane);
-                }
-                else if (connectedNode.lane>node.lane) { // out = 1
-                    if(connectedNode.RNoC_moduleType == "Mux")
-                        dir = DIR::Out;
-                    else dir = DIR::Keep;
-                }
-                else if (connectedNode.lane<node.lane) { // in >= 3
-                    dir = DIR::toDir(3+connectedNode.lane);
+                    }
+                    else{
+                        dir = DIR::toDir(3+connectedNode.lane);
+                    }
                 }
             }
             std::cout << "___dir = " << dir<< std::endl;

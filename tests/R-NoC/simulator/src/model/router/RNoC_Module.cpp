@@ -127,14 +127,16 @@ void RNoC_Module::thread()
     if (clk.posedge()) {
     
         globalReport.increaseClockCount(node.layer);
-
-        send();
+        // JMJ order: send() -> SA -> VCA = 3 cycles
+        // MMirka : VCA -> SA -> send()
+        
+        std::map<int, std::vector<Channel>> vc_requests = VCAllocation_generateRequests();
+        VCAllocation_generateAck(vc_requests);
 
         std::map<int, std::vector<Channel>> switch_requests = switchAllocation_generateRequests();
         switchAllocation_generateAck(switch_requests);
 
-        std::map<int, std::vector<Channel>> vc_requests = VCAllocation_generateRequests();
-        VCAllocation_generateAck(vc_requests);
+        send();
     }
     else if (clk.negedge()) {
         //The negative edge of the clock is used to model the asynchronous communication. Otherwise, the clock of the
