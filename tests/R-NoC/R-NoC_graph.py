@@ -54,8 +54,8 @@ class RNoC_Graph():
     def __init__(self):
     
         # Mesh parameters
-        self.NoC_x = 2
-        self.NoC_y = 2
+        self.NoC_x = 4
+        self.NoC_y = 4
         self.NoC_nbR = self.NoC_x*self.NoC_y
         self.pos = [0,0]
     
@@ -66,17 +66,17 @@ class RNoC_Graph():
         self.size_buffers = []
         self.nb_switchs = 0
         self.position_switchs = []
-        #self.nb_Lanes = 5
-        self.nb_Lanes = 3
+        self.nb_Lanes = 5
+        #self.nb_Lanes = 3
         self.para_ratio = 1
         self.modules=[]  
         self.nbModule = 0
         self.MuxDirOrder=["Local","South","East","North","West"] # direction of mux in ouput lane
         
-        #self.InputDict = {"West":0,"Local":6,"North":27,"South":38,"East":42}
-        #self.OutputDict = {"West":67,"Local":68,"North":66,"South":64,"East":65}
-        self.InputDict = {"West":0,"Local":4,"North":13,"South":24,"East":28}
-        self.OutputDict = {"West":40,"Local":41,"North":39,"South":37,"East":38}
+        self.InputDict = {"West":0,"Local":6,"North":27,"South":38,"East":42}
+        self.OutputDict = {"West":67,"Local":68,"North":66,"South":64,"East":65}
+        #self.InputDict = {"West":0,"Local":4,"North":13,"South":24,"East":28}
+        #self.OutputDict = {"West":40,"Local":41,"North":39,"South":37,"East":38}
         
         
         
@@ -718,7 +718,7 @@ def RNoC_byHand():
     
 def RNoC_byHand2():
     RNoC = RNoC_Graph()
-    s_buf = 4
+    s_buf = 32
     
     # Circuit 0 _ West & Local inputs
     ## Lane 0
@@ -942,7 +942,7 @@ def main():
     
    # RNoC.XML_writer('config.ini')
     
-    NoC = NoC_RNoC(4, 4, RNoC_byHand2)
+    NoC = NoC_RNoC(4, 4, RNoC_byHand)
     NoC.plot()
     NoC.XML_writer('config.ini')
 ###############################################################################

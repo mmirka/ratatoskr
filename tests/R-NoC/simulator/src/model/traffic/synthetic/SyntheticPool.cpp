@@ -130,8 +130,10 @@ SyntheticPool::uniform(taskID_t& taskId, int& phaseId,
         DataType dataType = DataType(dataTypeId, std::to_string(dataTypeId));
         for (unsigned int j = 0; j<numOfPEs; ++j) {
         //for (unsigned int j : globalResources.ListOfDestinations) {
+            
             if (i!=j) { // a PE should not send data to itself.
                 if(std::count(globalResources.ListOfDestinations.begin(), globalResources.ListOfDestinations.end(), j)){ // a PE should only send to pre-defined destinations
+                    if(j!=i+globalResources.deltaLocal){ // a PE should not send to its roundabout local
                     //std::cout << "Destination ID = " << j << " \n";
                     Node n = processingElements.at(j)->node;
                     int minInterval = std::floor((float) maxClockDelay/sp.injectionRate);
@@ -148,6 +150,7 @@ SyntheticPool::uniform(taskID_t& taskId, int& phaseId,
                     possibilities.emplace_back(poss_id, 1.f/(globalResources.ListOfDestinations.size()-1), dests);
                     ++poss_id;
                     ++dataDestId;
+                    }
                 }
             }
         }

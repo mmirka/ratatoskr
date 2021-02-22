@@ -80,15 +80,15 @@ public:
     std::vector <std::vector <std::vector<int> > > RoutingTable_RNoC;
     std::vector<int> ListOfSources;
     std::vector<int> ListOfDestinations;
-    std::vector<int> ListOfSecondaryLanes{0,1,2};
-    
-    int nbModules_RNoC = 42;
+    std::vector<int> ListOfSecondaryLanes{1,3,4};
+    int deltaLocal = 62;
+    int nbModules_RNoC = 69;
     std::string DirectionMat_file;
     // ___ R-NoC params
-    int nbLanes = 3;
+    int nbLanes = 5;
     int nbPorts = 5;
-    int NoC_x = 2;
-    int NoC_y = 2;
+    int NoC_x = 4;
+    int NoC_y = 4;
     int nbRouters_NoC = NoC_x * NoC_y; // mesh
     int nbRouters_Roundabout = (nbLanes + 1) * nbPorts + 1;
     int nbRouters_R_NoC = nbRouters_NoC * nbRouters_Roundabout;
